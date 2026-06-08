@@ -12,6 +12,7 @@ Drop a PDF onto the page and Ledger extracts the key financial fields into a lab
 
 - **Markdown (`.md`)** — for Obsidian, Apple Notes, or any Markdown-based workflow
 - **JSON (`.json`)** — structured for direct import into notes apps that store content in a database, with a compact summary line positioned so AI assistants can read all key figures within their per-note preview limit.
+- **Ledger** handles the extraction step only — AI querying happens with your AI assistant of choice, using the structured output as its source material.
 
 ---
 
