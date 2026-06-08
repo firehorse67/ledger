@@ -1,4 +1,4 @@
-# ledger
+# Ledger PDF to Markdown/JSON conversion
 
 A local-only, browser-based tool that converts Australian utility bills, payslips, and council rates notices into clean Markdown notes and/or JSON files with structured YAML front-matter — ready to import into your notes app and interrogate with AI. Also converts general PDF files to Markdown, which saves token usage when seeking AI assistance.
 
