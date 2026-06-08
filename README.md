@@ -1,6 +1,6 @@
 # ledger
 
-A local-only, browser-based tool that converts Australian utility bills, payslips, and council rates notices into clean Markdown notes and/orJSON files with structured YAML front-matter — ready to import into your notes app and interrogate with AI. Also converts general PDF files to Markdown, which saves token usage when seeking AI assistance.
+A local-only, browser-based tool that converts Australian utility bills, payslips, and council rates notices into clean Markdown notes and/or JSON files with structured YAML front-matter — ready to import into your notes app and interrogate with AI. Also converts general PDF files to Markdown, which saves token usage when seeking AI assistance.
 
 **Nothing is uploaded. Everything runs in your browser.**
 
@@ -11,7 +11,7 @@ A local-only, browser-based tool that converts Australian utility bills, payslip
 Drop a PDF onto the page and Ledger extracts the key financial fields into a labelled front-matter header, with the full document text below. It outputs two formats:
 
 - **Markdown (`.md`)** — for Obsidian, Apple Notes, or any Markdown-based workflow
-- **JSON (`.json`)** — structured for direct import into notes apps that store content in a database (the JSON format matches the Organiser/Firebase notes import schema, with a compact summary line positioned so AI assistants can read all key figures within their per-note preview limit)
+- **JSON (`.json`)** — structured for direct import into notes apps that store content in a database, with a compact summary line positioned so AI assistants can read all key figures within their per-note preview limit.
 
 ---
 
