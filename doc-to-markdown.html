@@ -237,6 +237,47 @@ function normText(s){
     .replace(/ /g," ");
 }
 
+/* build set of lines that repeat on >= 50% of pages (headers/footers) */
+function buildFingerprintSet(lines,totalPages){
+  if(totalPages<3)return new Set();
+  const freq={};
+  for(const line of lines){
+    const fp=line.trim();
+    if(fp.length<3||fp.length>120)continue;
+    freq[fp]=(freq[fp]||0)+1;
+  }
+  const threshold=Math.max(2,Math.floor(totalPages*0.5));
+  const repeating=new Set();
+  for(const [fp,count] of Object.entries(freq)){if(count>=threshold)repeating.add(fp);}
+  return repeating;
+}
+
+/* join PDF text items using actual width metadata for accurate spacing */
+function joinLineItems(items){
+  if(!items.length)return"";
+  const sorted=[...items].sort((a,b)=>a.x-b.x);
+  let result=sorted[0].str;
+  for(let i=1;i<sorted.length;i++){
+    const prev=sorted[i-1],curr=sorted[i];
+    const prevRight=prev.x+(prev.width||0);
+    const gap=curr.x-prevRight;
+    const endsWithPunct=/[.,;:!?]/.test(prev.str.trim().slice(-1));
+    const threshold=(prev.size||10)*(endsWithPunct?0.15:0.30);
+    const needSpace=gap>threshold&&!result.endsWith(" ")&&!curr.str.startsWith(" ");
+    result+=(needSpace?" ":"")+curr.str;
+  }
+  return result.trim();
+}
+
+/* percentile-based heading level: 2=##, 1=###, 0=body */
+function headingLevel(size,thresholds,isBold){
+  const{median,p85,p95}=thresholds;
+  if(size>=p95*0.97)return 2;
+  if(size>=p85*0.97)return isBold?2:1;
+  if(isBold&&size>=median*1.1)return 1;
+  return 0;
+}
+
 /* intake */
 const drop=$("#drop"),fileInput=$("#file");
 drop.onclick=()=>fileInput.click();
@@ -268,6 +309,25 @@ $("#go").onclick=async()=>{
     setProg(10,"Opening PDF…");
     const doc=await pdfjsLib.getDocument({data:buf}).promise;
     const n=doc.numPages;
+    // pre-scan up to 12 pages to detect repeating headers/footers
+    let repeatingFPs=new Set();
+    if(n>=3){
+      setProg(10,"Scanning for headers/footers…");
+      const rawLines=[];
+      const sampleN=Math.min(n,12);
+      for(let p=1;p<=sampleN;p++){
+        const pg=await doc.getPage(p);
+        const tc=await pg.getTextContent();
+        let cur=null;
+        for(const it of tc.items){
+          const y=Math.round(it.transform[5]);
+          if(!cur||Math.abs(y-cur.y)>4){if(cur)rawLines.push(cur.str.trim());cur={y,str:it.str};}
+          else{cur.str+=it.str;}
+        }
+        if(cur)rawLines.push(cur.str.trim());
+      }
+      repeatingFPs=buildFingerprintSet(rawLines,n);
+    }
     let plainText="";
     const bodyParts=[];
     const flowParts=[];
@@ -275,7 +335,7 @@ $("#go").onclick=async()=>{
       setProg(12+(p/n)*70,`Page ${p} of ${n}…`);
       const page=await doc.getPage(p);
       const tc=await page.getTextContent();
-      const {flow,layout}=renderPage(tc.items);
+      const {flow,layout}=renderPage(tc.items,page.view,repeatingFPs);
       plainText+=" "+flow;
       bodyParts.push(state.layout?layout:flow);
       flowParts.push(flow);
@@ -302,48 +362,72 @@ $("#go").onclick=async()=>{
   finally{$("#go").disabled=false;}
 };
 
-/* group items into lines; produce flowing string and layout-preserving string.
-   Items with font size significantly above the page median are promoted to ## headings
-   in flow output, which helps structure general documents for downstream models. */
-function renderPage(items){
+/* group items into lines; produce flowing and layout-preserving strings.
+   Uses joinLineItems for accurate spacing, percentile heading thresholds,
+   bold detection, margin/page-number filtering, and fingerprint dedup. */
+function renderPage(items,pageView,repeatingFPs){
+  const[_x0,_y0,rawW,rawH]=pageView||[0,0,595,842];
+  const pageW=rawW-_x0,pageH=rawH-_y0;
+
+  // enrich items: add width, isBold, isMargin
+  const enriched=items
+    .filter(it=>it.str&&it.str.trim())
+    .map(it=>{
+      const size=Math.hypot(it.transform[2],it.transform[3])||it.height||10;
+      const x=it.transform[4],y=it.transform[5];
+      const width=it.width||it.str.length*(size*0.55);
+      const isBold=(it.fontName||"").toLowerCase().includes("bold");
+      return{str:normText(it.str),x,y,size,width,isBold};
+    });
+
+  // group into rows by y coordinate
   const rows=[];
-  for(const it of items){
-    if(!it.str)continue;
-    const y=Math.round(it.transform[5]);
-    const size=Math.hypot(it.transform[2],it.transform[3])||it.height||10;
-    let row=rows.find(r=>Math.abs(r.y-y)<Math.max(3,size*0.4));
+  for(const it of enriched){
+    const y=Math.round(it.y);
+    let row=rows.find(r=>Math.abs(r.y-y)<Math.max(3,it.size*0.45));
     if(!row){row={y,items:[]};rows.push(row);}
-    row.items.push({x:it.transform[4],str:normText(it.str),size});
+    row.items.push(it);
   }
   rows.sort((a,b)=>b.y-a.y);
 
-  // median font size across all items — used as heading threshold
-  const allSizes=rows.flatMap(r=>r.items.map(i=>i.size)).sort((a,b)=>a-b);
+  // heading thresholds from p85 and p95 of all font sizes
+  const allSizes=enriched.map(i=>i.size).sort((a,b)=>a-b);
   const median=allSizes[Math.floor(allSizes.length/2)]||10;
+  const p85=allSizes[Math.floor(allSizes.length*0.85)]||median;
+  const p95=allSizes[Math.floor(allSizes.length*0.95)]||p85;
 
   const flowLines=[],layoutLines=[];
   for(const r of rows){
     r.items.sort((a,b)=>a.x-b.x);
-    const flow=r.items.map(i=>i.str).join("").replace(/\s+/g," ").trim();
-    if(!flow)continue;
+    const text=joinLineItems(r.items);
+    if(!text)continue;
 
+    // suppress page numbers and repeating headers/footers in top/bottom margins
+    const rawText=r.items.map(i=>i.str).join("").trim();
+    const isMarginRow=r.y>pageH*0.94||r.y<pageH*0.06;
+    const isPageNum=/^\d+$/.test(rawText)||/^(page\s*)?\d+(\s*of\s*\d+)?$/i.test(rawText);
+    if(isMarginRow&&(isPageNum||(repeatingFPs&&repeatingFPs.has(rawText))))continue;
+
+    // heading level and prefix
     const avgSize=r.items.reduce((s,i)=>s+i.size,0)/r.items.length;
-    const isHeading=avgSize>median*1.6&&flow.length<100;
-    flowLines.push((isHeading?"## ":"")+flow);
+    const isBold=r.items.some(i=>i.isBold);
+    const lvl=headingLevel(avgSize,{median,p85,p95},isBold);
+    const prefix=lvl===2?"## ":lvl===1?"### ":"";
+    flowLines.push(prefix+text);
 
-    // layout: insert spacing proportional to x-gaps; scale lastEnd by actual font size
+    // layout: preserve column spacing using actual item widths
     let lay="",lastEnd=null;
     for(const i of r.items){
       if(lastEnd!==null){
         const gap=i.x-lastEnd;
         if(gap>14)lay+=" ".repeat(Math.min(40,Math.round(gap/6)));
-      } else { lay+=" ".repeat(Math.min(20,Math.round(i.x/6))); }
+      } else{lay+=" ".repeat(Math.min(20,Math.round(i.x/6)));}
       lay+=i.str;
-      lastEnd=i.x+i.str.length*(i.size*0.55);
+      lastEnd=i.x+i.width;
     }
-    layoutLines.push(lay.replace(/\s+$/,""));
+    layoutLines.push((prefix+lay).replace(/\s+$/,""));
   }
-  return {flow:flowLines.join("\n"),layout:layoutLines.join("\n")};
+  return{flow:flowLines.join("\n"),layout:layoutLines.join("\n")};
 }
 
 /* ---------- detection ---------- */
