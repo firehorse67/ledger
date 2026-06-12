@@ -262,8 +262,11 @@ function joinLineItems(items){
     const prevRight=prev.x+(prev.width||0);
     const gap=curr.x-prevRight;
     const endsWithPunct=/[.,;:!?]/.test(prev.str.trim().slice(-1));
-    const threshold=(prev.size||10)*(endsWithPunct?0.15:0.30);
-    const needSpace=gap>threshold&&!result.endsWith(" ")&&!curr.str.startsWith(" ");
+    const threshold=(prev.height||prev.size||10)*(endsWithPunct?0.08:0.18);
+    const isDropCap=prev.str.length===1&&(prev.height||prev.size||10)>(curr.height||curr.size||10)*1.5&&gap<(curr.height||curr.size||10);
+    const isSuperSub=((curr.height||curr.size||10)<(prev.height||prev.size||10)*0.75||(prev.height||prev.size||10)<(curr.height||curr.size||10)*0.75)&&Math.abs((curr.y||0)-(prev.y||0))>1;
+    let needSpace=gap>threshold&&!result.endsWith(" ")&&!curr.str.startsWith(" ");
+    if(isDropCap||isSuperSub)needSpace=false;
     result+=(needSpace?" ":"")+curr.str;
   }
   return result.trim();
@@ -280,10 +283,12 @@ function headingLevel(size,thresholds,isBold){
 
 /* intake */
 const drop=$("#drop"),fileInput=$("#file");
-drop.onclick=()=>fileInput.click();
-["dragenter","dragover"].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add("over");}));
-["dragleave","drop"].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove("over");}));
-drop.addEventListener("drop",ev=>setFile(ev.dataTransfer.files[0]));
+drop.onclick=e=>{if(e.target.id!=="file")fileInput.click();};
+let dragCounter=0;
+drop.addEventListener("dragenter",ev=>{ev.preventDefault();dragCounter++;drop.classList.add("over");});
+drop.addEventListener("dragover",ev=>{ev.preventDefault();});
+drop.addEventListener("dragleave",()=>{if(--dragCounter===0)drop.classList.remove("over");});
+drop.addEventListener("drop",ev=>{ev.preventDefault();dragCounter=0;drop.classList.remove("over");setFile(ev.dataTransfer.files[0]);});
 fileInput.onchange=ev=>setFile(ev.target.files[0]);
 function setFile(f){
   if(!f)return;
