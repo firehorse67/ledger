@@ -275,6 +275,8 @@ function joinLineItems(items){
 /* percentile-based heading level: 2=##, 1=###, 0=body */
 function headingLevel(size,thresholds,isBold){
   const{median,p85,p95}=thresholds;
+  // bold same-size text is body, not a heading (payslip labels, table headers, etc.)
+  if(size<=median*1.02&&isBold)return 0;
   if(size>=p95*0.97)return 2;
   if(size>=p85*0.97)return isBold?2:1;
   if(isBold&&size>=median*1.1)return 1;
@@ -312,7 +314,7 @@ $("#go").onclick=async()=>{
     setProg(4,"Reading file…");
     const buf=await state.file.arrayBuffer();
     setProg(10,"Opening PDF…");
-    const doc=await pdfjsLib.getDocument({data:buf}).promise;
+    const doc=await pdfjsLib.getDocument({data:buf,maxImageSize:52428800}).promise;
     const n=doc.numPages;
     // pre-scan up to 12 pages to detect repeating headers/footers
     let repeatingFPs=new Set();
@@ -631,8 +633,20 @@ function buildFrontMatter(){
   return lines.join("\n");
 }
 function yamlVal(v){ if(v==="")return '""'; return /[:#\-{}\[\],&*?|<>=!%@`"']/.test(v)?JSON.stringify(v):v; }
+function cleanMarkdown(md){
+  const lines=md.split("\n");const out=[];
+  for(let i=0;i<lines.length;i++){
+    let line=lines[i];
+    // strip stray blockquote markers not preceded by blank line or another blockquote
+    if(line.startsWith("> ")&&i>0&&lines[i-1].trim()!==""&&!lines[i-1].startsWith(">"))line=line.slice(2);
+    // skip duplicate consecutive page headings
+    if(line.startsWith("## Page ")&&out.length&&out[out.length-1].startsWith("## Page "))continue;
+    out.push(line);
+  }
+  return out.join("\n");
+}
 function fullMarkdown(){
-  return buildFrontMatter()+"\n\n# "+state.result.title+"\n\n"+state.result.body.trim()+"\n";
+  return cleanMarkdown(buildFrontMatter()+"\n\n# "+state.result.title+"\n\n"+state.result.body.trim()+"\n");
 }
 
 /* Organiser-compatible JSON: summary line first so it appears within Gemini's
