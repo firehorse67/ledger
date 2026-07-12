@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ledger — Bills · Payslips · Rates → Markdown</title>
+<meta name="theme-color" content="#006b54">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQwIiBmaWxsPSIjMDA2YjU0Ii8+PHJlY3QgeD0iNDgiIHk9IjM2IiB3aWR0aD0iOTYiIGhlaWdodD0iMTIwIiByeD0iOCIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjY0IiB5PSI2MCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjEwIiByeD0iNSIgZmlsbD0iIzAwNmI1NCIvPjxyZWN0IHg9IjY0IiB5PSI4NCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjEwIiByeD0iNSIgZmlsbD0iIzAwNmI1NCIvPjxyZWN0IHg9IjY0IiB5PSIxMDgiIHdpZHRoPSI0MCIgaGVpZ2h0PSIxMCIgcng9IjUiIGZpbGw9IiMwMDZiNTQiLz48Y2lyY2xlIGN4PSIxMzIiIGN5PSIxMzIiIHI9IjI4IiBmaWxsPSIjMDA1MTNmIi8+PHBhdGggZD0iTTEyMCAxMzIgbDggOCBsMTYgLTE4IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiTGVkZ2VyIOKAlCBCaWxscywgUGF5c2xpcHMgJiBSYXRlcyB0byBNYXJrZG93biIsInNob3J0X25hbWUiOiJMZWRnZXIiLCJkZXNjcmlwdGlvbiI6IkxvY2FsLCBicm93c2VyLWJhc2VkIGNvbnZlcnRlciBmb3IgQXVzdHJhbGlhbiBiaWxscywgcGF5c2xpcHMgYW5kIHJhdGVzIG5vdGljZXMgaW50byBNYXJrZG93bi9KU09OLiIsInN0YXJ0X3VybCI6Ii4vcGRmLW1hcmtkb3duLmh0bWwiLCJzY29wZSI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y2ZjlmNyIsInRoZW1lX2NvbG9yIjoiIzAwNmI1NCIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBeE9USWdNVGt5SWo0OGNtVmpkQ0IzYVdSMGFEMGlNVGt5SWlCb1pXbG5hSFE5SWpFNU1pSWdjbmc5SWpRd0lpQm1hV3hzUFNJak1EQTJZalUwSWk4K1BISmxZM1FnZUQwaU5EZ2lJSGs5SWpNMklpQjNhV1IwYUQwaU9UWWlJR2hsYVdkb2REMGlNVEl3SWlCeWVEMGlPQ0lnWm1sc2JEMGlJMlptWm1abVppSXZQanh5WldOMElIZzlJalkwSWlCNVBTSTJNQ0lnZDJsa2RHZzlJalkwSWlCb1pXbG5hSFE5SWpFd0lpQnllRDBpTlNJZ1ptbHNiRDBpSXpBd05tSTFOQ0l2UGp4eVpXTjBJSGc5SWpZMElpQjVQU0k0TkNJZ2QybGtkR2c5SWpZMElpQm9aV2xuYUhROUlqRXdJaUJ5ZUQwaU5TSWdabWxzYkQwaUl6QXdObUkxTkNJdlBqeHlaV04wSUhnOUlqWTBJaUI1UFNJeE1EZ2lJSGRwWkhSb1BTSTBNQ0lnYUdWcFoyaDBQU0l4TUNJZ2NuZzlJalVpSUdacGJHdzlJaU13TURaaU5UUWlMejQ4WTJseVkyeGxJR040UFNJeE16SWlJR041UFNJeE16SWlJSEk5SWpJNElpQm1hV3hzUFNJak1EQTFNVE5tSWk4K1BIQmhkR2dnWkQwaVRURXlNQ0F4TXpJZ2JEZ2dPQ0JzTVRZZ0xURTRJaUJ6ZEhKdmEyVTlJaU5tWm1abVptWWlJSE4wY205clpTMTNhV1IwYUQwaU5pSWdabWxzYkQwaWJtOXVaU0lnYzNSeWIydGxMV3hwYm1WallYQTlJbkp2ZFc1a0lpQnpkSEp2YTJVdGJHbHVaV3B2YVc0OUluSnZkVzVrSWk4K1BDOXpkbWMrIiwic2l6ZXMiOiJhbnkiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCIsInB1cnBvc2UiOiJhbnkifV19">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
 
 <style>
   :root{
@@ -180,7 +180,7 @@
   </div>
 
   <div class="results" id="results">
-    <h3>✓ Extracted <span class="badge detected" id="typeBadge"></span><span class="badge" id="pageBadge"></span></h3>
+    <h3>✓ Extracted <span class="badge detected" id="typeBadge"></span><span class="badge" id="pageBadge"></span><span class="badge detected hidden" id="ocrBadge">OCR'd</span></h3>
     <p class="sub">Review and correct the fields below — they become the YAML front-matter your notes app and AI will read. Empty fields are highlighted; fill or delete as needed.</p>
 
     <div class="grid2">
@@ -218,13 +218,40 @@
 
 <div id="toast" class="toast"></div>
 
-<script>
-pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+<script type="module">
+import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.1.200/pdf.min.mjs";
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.1.200/pdf.worker.min.mjs";
+
+/* installable PWA support. No-op under file:// (SW registration requires http/https),
+   and no-op if sw.js isn't alongside this file (e.g. viewed as a lone downloaded copy). */
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(()=>{});
+}
 
 const state={file:null,type:"auto",layout:true,result:null,tab:"raw",fields:[]};
 const $=s=>document.querySelector(s);
 const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400);};
 const fmtSize=b=>b<1024?b+" B":b<1048576?(b/1024).toFixed(0)+" KB":(b/1048576).toFixed(1)+" MB";
+const escapeHtml=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+/* minimal markdown->HTML for the Rendered preview; every text fragment is escaped
+   before insertion so extracted PDF content can never inject markup */
+function renderSafeMarkdown(md){
+  const lines=md.split("\n");
+  let html="",para=[];
+  const flushPara=()=>{if(para.length){html+="<p>"+para.join(" ").trim()+"</p>";para=[];}};
+  for(const line of lines){
+    const trimmed=line.trim();
+    if(trimmed===""){flushPara();continue;}
+    if(/^-{3,}$/.test(trimmed)){flushPara();html+="<hr>";continue;}
+    if(line.startsWith("### ")){flushPara();html+="<h3>"+escapeHtml(line.slice(4))+"</h3>";continue;}
+    if(line.startsWith("## ")){flushPara();html+="<h2>"+escapeHtml(line.slice(3))+"</h2>";continue;}
+    if(line.startsWith("# ")){flushPara();html+="<h1>"+escapeHtml(line.slice(2))+"</h1>";continue;}
+    para.push(escapeHtml(line));
+  }
+  flushPara();
+  return html;
+}
 
 /* normalise common PDF text encoding artefacts */
 function normText(s){
@@ -347,16 +374,30 @@ $("#go").onclick=async()=>{
       bodyParts.push(state.layout?layout:flow);
       flowParts.push(flow);
     }
+    let ocrUsed=false;
     if(plainText.trim().length<100){
-      toast("Warning: almost no text found — this PDF may be scanned or image-only");
+      setProg(86,`No text layer found — running OCR on page 1 of ${n}…`);
+      try{
+        const ocr=await runOcr(doc,n,(pct,page)=>{
+          const label=page?`OCR: page ${page} of ${n}…`:`OCR: page ${Math.round(pct*100)}%…`;
+          setProg(86+pct*8,label);
+        });
+        plainText=ocr.plainText;
+        bodyParts.length=0;flowParts.length=0;
+        ocr.pages.forEach(t=>{bodyParts.push(t);flowParts.push(t);});
+        ocrUsed=true;
+      }catch(err){
+        console.error(err);
+        toast("OCR unavailable ("+(err.message||err)+") — this PDF may be scanned or image-only");
+      }
     }
-    setProg(86,"Detecting document type…");
+    setProg(94,"Detecting document type…");
     const type=state.type==="auto"?detectType(plainText):state.type;
-    setProg(90,"Extracting fields…");
+    setProg(96,"Extracting fields…");
     const fields=extractFields(type,plainText);
     const title=titleFor(type,fields,state.file.name);
     state.result={
-      type,pages:n,
+      type,pages:n,ocrUsed,
       body:bodyParts.join("\n\n"+"-".repeat(3)+"\n\n"),
       flowBody:flowParts.join("\n\n"+"-".repeat(3)+"\n\n"),
       plainText,title,
@@ -435,6 +476,48 @@ function renderPage(items,pageView,repeatingFPs){
     layoutLines.push((prefix+lay).replace(/\s+$/,""));
   }
   return{flow:flowLines.join("\n"),layout:layoutLines.join("\n")};
+}
+
+/* ---------- OCR fallback (scanned / image-only PDFs) ---------- */
+function loadTesseract(){
+  return new Promise((resolve,reject)=>{
+    if(window.Tesseract)return resolve();
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/tesseract.js@7.0.0/dist/tesseract.min.js";
+    s.onload=()=>resolve();
+    s.onerror=()=>reject(new Error("couldn't load OCR engine — check your network connection"));
+    document.head.appendChild(s);
+  });
+}
+/* rasterises each page via pdf.js and runs Tesseract over it; only invoked
+   when the text layer is near-empty, so normal (non-scanned) PDFs never pay this cost */
+async function runOcr(doc,n,onProgress){
+  await loadTesseract();
+  const worker=await window.Tesseract.createWorker("eng",1,{
+    logger:m=>{
+      if(m.status==="recognizing text")onProgress(m.progress||0);
+    }
+  });
+  const pages=[];
+  let plainText="";
+  try{
+    for(let p=1;p<=n;p++){
+      onProgress(0,p);
+      const page=await doc.getPage(p);
+      const viewport=page.getViewport({scale:2});
+      const canvas=document.createElement("canvas");
+      canvas.width=viewport.width;canvas.height=viewport.height;
+      const ctx=canvas.getContext("2d");
+      await page.render({canvasContext:ctx,canvas,viewport}).promise;
+      const{data}=await worker.recognize(canvas);
+      const text=normText((data.text||"").trim());
+      pages.push(text);
+      plainText+=" "+text;
+    }
+  } finally {
+    await worker.terminate();
+  }
+  return{pages,plainText};
 }
 
 /* ---------- detection ---------- */
@@ -607,9 +690,12 @@ function showResults(){
   const labels={utility:"utility bill",payslip:"payslip",rates:"rates notice",document:"unrecognised — generic"};
   $("#typeBadge").textContent=labels[r.type]||r.type;
   $("#pageBadge").textContent=r.pages+" page"+(r.pages>1?"s":"");
-  $("#fmNote").textContent = r.type==="document"
-    ? "Couldn't confidently identify the document type — extracted what it could. Set the type manually above and re-run for better fields."
-    : "Auto-filled from the document. Click any value to edit; flagged fields were left blank.";
+  $("#ocrBadge").classList.toggle("hidden",!r.ocrUsed);
+  $("#fmNote").textContent = r.ocrUsed
+    ? "No text layer was found, so this was read with OCR — accuracy is lower than a native PDF text layer. Check every field carefully before trusting it."
+    : r.type==="document"
+      ? "Couldn't confidently identify the document type — extracted what it could. Set the type manually above and re-run for better fields."
+      : "Auto-filled from the document. Click any value to edit; flagged fields were left blank.";
   renderFields();renderViewer();
   $("#results").classList.add("show");
 }
@@ -617,7 +703,7 @@ function renderFields(){
   const c=$("#fmFields");c.innerHTML="";
   state.fields.forEach((f,i)=>{
     const row=document.createElement("div");row.className="frow";
-    row.innerHTML=`<label>${f.key}</label><input value="${(f.val||"").replace(/"/g,'&quot;')}" data-i="${i}"${f.val?"":' class="empty"'}>`;
+    row.innerHTML=`<label>${escapeHtml(f.key)}</label><input value="${escapeHtml(f.val||"")}" data-i="${i}"${f.val?"":' class="empty"'}>`;
     const inp=row.querySelector("input");
     inp.oninput=e=>{state.fields[i].val=e.target.value;e.target.classList.toggle("empty",!e.target.value);renderViewer();};
     c.appendChild(row);
@@ -670,9 +756,9 @@ function renderViewer(){
     const pre=document.createElement("pre");pre.className="raw";pre.textContent=md;body.innerHTML="";body.appendChild(pre);
   } else {
     const card=document.createElement("div");card.className="fmcard";
-    card.innerHTML=state.fields.filter(f=>f.key).map(f=>`<span class="k">${f.key}</span>: ${f.val||"—"}`).join("<br>");
+    card.innerHTML=state.fields.filter(f=>f.key).map(f=>`<span class="k">${escapeHtml(f.key)}</span>: ${escapeHtml(f.val||"—")}`).join("<br>");
     const div=document.createElement("div");div.className="rendered";
-    div.innerHTML=marked.parse("# "+state.result.title+"\n\n"+state.result.body.trim());
+    div.innerHTML=renderSafeMarkdown("# "+state.result.title+"\n\n"+state.result.body.trim());
     body.innerHTML="";body.appendChild(card);body.appendChild(div);
   }
 }

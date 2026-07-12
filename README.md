@@ -43,7 +43,7 @@ Detection is tuned for Australian providers, councils, and terminology (NMI, PAY
 4. Review and correct the extracted fields
 5. Download `.md`, `.json`, or copy the Markdown to clipboard
 
-Keep a copy on each machine you use. There is no hosted version.
+Keep a copy on each machine you use. There is no hosted version — though if you host `doc-to-markdown.html` yourself over http/https (with `sw.js` alongside it), your browser will offer to install it as an app with offline support.
 
 ---
 
@@ -54,9 +54,10 @@ Keep a copy on each machine you use. There is no hosted version.
 - **Layout-preserving extraction** — optional column-spacing mode helps AI models read tables correctly
 - **Heading detection** — font size metadata promotes section headers to Markdown `##`
 - **Text normalisation** — ligatures (`ﬁ→fi`), smart quotes, en/em dashes, non-breaking spaces cleaned automatically
-- **Scanned PDF warning** — alerts if no text layer is found
+- **OCR fallback** — if a PDF has no text layer (scanned or photographed), Tesseract.js is loaded on demand and run over each page automatically; results are flagged with an "OCR'd" badge since accuracy is lower than a native text layer
 - **Editable front-matter** — review and correct any field before export; add custom fields
 - **JSON export** — summary line placed at the top of note content so AI assistants see all key figures within their context preview window
+- **Installable** — if you host the file over http/https (rather than opening it as a local file), it's an installable PWA with offline support after first load
 
 ---
 
@@ -72,13 +73,15 @@ This tool began as a fork of [LiteDoc](https://github.com/0xovo/LiteDoc) by [0xo
 - **Text normalisation pass** — ligature and encoding artefact cleanup applied to every extracted text item
 - **Scanned PDF detection** — warns when extracted text is near-empty
 - **Separate super fields** — super guarantee and salary sacrifice are extracted into distinct fields with correctly prioritised label matching
+- **OCR fallback** — adapted from LiteDoc's Tesseract.js integration, simplified to a single sequential worker (LiteDoc runs a multi-worker pool for its batch/multi-file use case)
+- **Installable PWA shell** — adapted from LiteDoc's manifest + service worker; the manifest is inlined as a data URI in `pdf-markdown.html` (no separate file needed for that part), but `sw.js` must ship as a real same-origin file — browsers don't allow registering a service worker from a `blob:`/data URI
 
 ---
 
 ## Dependencies (all CDN, no install)
 
 - [PDF.js](https://mozilla.github.io/pdf.js/) — PDF parsing (Mozilla, Apache 2.0)
-- [marked](https://marked.js.org/) — Markdown rendering for the preview tab (MIT)
+- [Tesseract.js](https://tesseract.projectnaptha.com/) — OCR, loaded only when a scanned PDF is detected (Apache 2.0)
 - [Inter](https://rsms.me/inter/) — UI font (SIL Open Font Licence)
 - [JetBrains Mono](https://www.jetbrains.com/legalforms/fonts/) — monospace font (SIL Open Font Licence)
 
@@ -87,6 +90,6 @@ This tool began as a fork of [LiteDoc](https://github.com/0xovo/LiteDoc) by [0xo
 ## Notes
 
 - Field extraction is heuristic — always review the front-matter before trusting numbers
-- Scanned (image-only) PDFs produce no output; a text layer is required
+- Scanned (image-only) PDFs are read via on-demand OCR, which needs network access on first use and is noticeably slower and less accurate than a native text layer — double-check the fields
 - Tuned for Australian documents; results will vary for non-AU formats
 - The original PDF remains your legal record — the extracted note is a working copy for search and AI queries
