@@ -299,13 +299,18 @@ function joinLineItems(items){
   return result.trim();
 }
 
-/* percentile-based heading level: 2=##, 1=###, 0=body */
+/* percentile-based heading level: 2=##, 1=###, 0=body.
+   Percentile tiers only count when they stand clear of the median — on
+   font-uniform documents (bills, payslips) p85/p95 collapse to the median and
+   would promote every body row to a heading. */
 function headingLevel(size,thresholds,isBold){
   const{median,p85,p95}=thresholds;
   // bold same-size text is body, not a heading (payslip labels, table headers, etc.)
   if(size<=median*1.02&&isBold)return 0;
-  if(size>=p95*0.97)return 2;
-  if(size>=p85*0.97)return isBold?2:1;
+  const t2=p95>=median*1.15?p95:Infinity;
+  const t1=p85>=median*1.15?p85:Infinity;
+  if(size>=t2*0.97)return 2;
+  if(size>=t1*0.97)return isBold?2:1;
   if(isBold&&size>=median*1.1)return 1;
   return 0;
 }
@@ -323,7 +328,7 @@ function setFile(f){
   if(!f)return;
   if(f.type!=="application/pdf"&&!f.name.toLowerCase().endsWith(".pdf")){toast("Please choose a PDF");return;}
   state.file=f;
-  $("#chip").innerHTML=`<div class="chip"><span>📕</span><span class="nm">${f.name}</span><span class="sz">${fmtSize(f.size)}</span><span class="x">×</span></div>`;
+  $("#chip").innerHTML=`<div class="chip"><span>📕</span><span class="nm">${escapeHtml(f.name)}</span><span class="sz">${fmtSize(f.size)}</span><span class="x">×</span></div>`;
   $("#chip").querySelector(".x").onclick=()=>{state.file=null;$("#chip").innerHTML="";$("#go").disabled=true;$("#clear").classList.add("hidden");$("#results").classList.remove("show");};
   $("#go").disabled=false;$("#clear").classList.remove("hidden");
 }
@@ -532,38 +537,111 @@ function detectType(t){
 }
 
 /* ---------- field extraction helpers ---------- */
-const reMoney=/\$\s?([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{2})|[0-9]+\.[0-9]{2})/g;
+/* money amount: 1,234.56 / 1234.56 / 99 — anchored near a label */
 function moneyNear(text,labels){
   for(const lab of labels){
-    const re=new RegExp(lab+"[^$\\n]{0,40}\\$\\s?([0-9][0-9,]*\\.?[0-9]{0,2})","i");
+    const re=new RegExp(lab+"[^$\\n]{0,40}\\$\\s?([0-9]{1,3}(?:,[0-9]{3})*(?:\\.[0-9]{2})?|[0-9]+(?:\\.[0-9]{2})?)","i");
     const m=text.match(re); if(m)return m[1].replace(/,/g,"");
   }
   return "";
 }
+/* date matcher — day, numeric-or-named month, year (2 or 4 digit) */
+const DATE_RE="[0-9]{1,2}[\\/\\-\\. ](?:[0-9]{1,2}|[A-Za-z]{3,9})[\\/\\-\\. ][0-9]{2,4}";
+/* day + named month with no year, e.g. "3 Apr" (used only as a range start) */
+const DATE_NOYEAR_RE="[0-9]{1,2}[\\/\\-\\. ][A-Za-z]{3,9}";
 function dateNear(text,labels){
-  const D="([0-9]{1,2}[\\/\\-\\. ](?:[0-9]{1,2}|[A-Za-z]{3,9})[\\/\\-\\. ][0-9]{2,4})";
   for(const lab of labels){
-    const m=text.match(new RegExp(lab+"[^0-9]{0,25}"+D,"i")); if(m)return tidyDate(m[1]);
+    const m=text.match(new RegExp(lab+"[^0-9]{0,25}("+DATE_RE+")","i")); if(m)return tidyDate(m[1]);
   }
   return "";
 }
 function tidyDate(s){return s.replace(/\s+/g," ").trim();}
+/* range separator: "to"/dash/"until", tolerating a colon as in "To: 10/07/2026" */
+const RANGE_SEP="\\s*(?:to|until|-|–|—)\\s*:?\\s*";
+/* first bare "<date> to <date>" range anywhere in the text */
 function periodRange(text){
-  const D="[0-9]{1,2}[\\/\\-\\. ](?:[0-9]{1,2}|[A-Za-z]{3,9})[\\/\\-\\. ][0-9]{2,4}";
-  let m=text.match(new RegExp("("+D+")\\s*(?:to|-|–|—|until)\\s*("+D+")","i"));
+  const m=text.match(new RegExp("("+DATE_RE+")"+RANGE_SEP+"("+DATE_RE+")","i"));
   if(m)return tidyDate(m[1])+" to "+tidyDate(m[2]);
   return "";
 }
-function valueNear(text,labels,unit){
-  for(const lab of labels){
-    const m=text.match(new RegExp(lab+"[^0-9]{0,30}([0-9][0-9,]*\\.?[0-9]*)\\s*"+unit,"i"));
-    if(m)return m[1].replace(/,/g,"")+(unit?" "+unit.replace(/\\\\/g,""):"");
-  }
+/* a range following an explicit "supply/billing period" label; tolerates a
+   no-year start like "3 Apr - 10 Jul 2026" */
+function labelledPeriod(text){
+  const m=text.match(new RegExp("(?:supply period|billing period|bill period|service period|pay period(?: from)?)[^0-9]{0,15}("+DATE_NOYEAR_RE+"|"+DATE_RE+")"+RANGE_SEP+"("+DATE_RE+")","i"));
+  if(m)return tidyDate(m[1])+" to "+tidyDate(m[2]);
   return "";
 }
+/* widest span across every "from <date> to <date>" sub-period (bills split a
+   billing cycle into e.g. summer/winter rate periods) */
+function widestFromRange(text){
+  const re=new RegExp("from\\s+("+DATE_RE+")"+RANGE_SEP+"("+DATE_RE+")","ig");
+  const ranges=[...text.matchAll(re)];
+  if(!ranges.length)return "";
+  const first=ranges[0],last=ranges[ranges.length-1];
+  return tidyDate(first[1])+" to "+tidyDate(last[2]);
+}
+function normUnit(u){
+  u=u.toLowerCase();
+  if(u==="kwh")return "kWh";
+  if(u==="mj"||u==="megajoule"||u==="megajoules")return "MJ";
+  if(u==="kl"||u.startsWith("kilolitre"))return "kL";
+  if(u==="l"||u.startsWith("litre"))return "L";
+  return u;
+}
+/* total metered usage with its unit; kWh/MJ totals usually live in a rate table
+   (needs the labelled total), water states kilolitres in prose */
+function usageAmount(text){
+  let m=text.match(/([0-9]+(?:\.[0-9]+)?)\s*kilolitres?\b/i);
+  if(m)return{value:m[1],unit:"kL"};
+  m=text.match(/(?:total usage|total consumption|your consumption)[^0-9]{0,20}([0-9][0-9,]*(?:\.[0-9]+)?)\s*(kwh|mj)/i);
+  if(m)return{value:m[1].replace(/,/g,""),unit:normUnit(m[2])};
+  // tariff tables list totals per rate with no unit suffix ("Total Anytime 628",
+  // "Total Summer 140" + "Total Winter 207"); unit comes from the column header
+  const uh=text.match(/usage\s*\(?\s*(kwh|mj)\s*\)?/i);
+  if(uh){
+    const rows=[...text.matchAll(/total\s+(anytime|peak|off[- ]?peak|shoulder|summer|winter|cl\s?\d|controlled load\s?\d?)\s+([0-9][0-9,]*(?:\.[0-9]+)?)/ig)];
+    if(rows.length){
+      const sum=rows.reduce((s,r)=>s+parseFloat(r[2].replace(/,/g,"")),0);
+      return{value:String(Math.round(sum*1000)/1000),unit:normUnit(uh[1])};
+    }
+  }
+  return{value:"",unit:""};
+}
+/* average daily usage line, with unit when present */
+function avgDaily(text){
+  let m=text.match(/average daily (?:usage|use|cost)?[^0-9$]{0,25}([0-9]+(?:\.[0-9]+)?)\s*(kwh|mj|litres?|kl)\b/i);
+  if(m)return m[1]+" "+normUnit(m[2]);
+  // water bills state it as prose: "equates to 121.2 litres per day"
+  m=text.match(/([0-9]+(?:\.[0-9]+)?)\s*(litres?|kl|kwh|mj)\s*per day/i);
+  if(m)return m[1]+" "+normUnit(m[2]);
+  m=text.match(/average daily (?:usage|use)[^0-9]{0,25}([0-9]+(?:\.[0-9]+)?)/i);
+  if(m)return m[1];
+  return "";
+}
+/* due date — prefer the unambiguous payment-slip / direct-debit phrasings over
+   the header box, where issue and due dates sit adjacent in reading order */
+function dueDate(text){
+  let m=text.match(new RegExp("due date\\s+("+DATE_RE+")\\s+amount due","i"));
+  if(m)return tidyDate(m[1]);
+  m=text.match(new RegExp("debited on\\s+("+DATE_RE+")","i"));
+  if(m)return tidyDate(m[1]);
+  return dateNear(text,["due date","pay by","please pay by","payment due"]);
+}
+/* alphanumeric meter serial, e.g. water "Meter no. BCD034619". The label is
+   often a table column header with the serial on the next row, so scan a short
+   window after it for an uppercase letters+digits token */
+function meterSerial(text){
+  const lab=text.match(/meter\s*(?:no|number|serial)\b/i);
+  if(!lab)return "";
+  const win=text.slice(lab.index,lab.index+90);
+  const m=win.match(/\b([A-Z]{1,4}[0-9]{4,12})\b/);
+  return m?m[1]:"";
+}
+/* reference number: digits with optional internal spaces/hyphens (account
+   numbers like 105382-012), trailing separators trimmed */
 function refNear(text,labels){
   for(const lab of labels){
-    const m=text.match(new RegExp(lab+"[^0-9A-Z]{0,15}([0-9][0-9 ]{4,})","i"));
+    const m=text.match(new RegExp(lab+"[^0-9A-Z]{0,15}([0-9][0-9 \\-]{3,}[0-9])","i"));
     if(m)return m[1].replace(/\s+/g," ").trim();
   }
   return "";
@@ -574,12 +652,15 @@ function extractFields(type,t){
   if(type==="utility"){
     add("type","utility_bill");
     add("provider",guessProvider(t));
-    add("account",refNear(t,["account number","account no","account"]));
-    add("period",periodRange(t)||dateNear(t,["bill period","billing period","period"]));
-    add("usage_kwh",valueNear(t,["total usage","usage","consumption"],"kwh").replace(" kwh",""));
-    add("avg_daily",valueNear(t,["average daily usage","average daily","avg daily"],"kwh").replace(" kwh",""));
+    add("account",refNear(t,["customer number","account number","account no","account"]));
+    add("meter_id",refNear(t,["nmi","mirn","registration number","metering identifier"])||meterSerial(t));
+    add("period",labelledPeriod(t)||widestFromRange(t)||periodRange(t)||dateNear(t,["bill period","billing period","period"]));
+    const usage=usageAmount(t);
+    add("usage",usage.value);
+    add("usage_unit",usage.unit);
+    add("avg_daily",avgDaily(t));
     add("amount_due",moneyNear(t,["total amount due","amount due","total due","please pay","new charges","total"]));
-    add("due_date",dateNear(t,["due date","pay by","please pay by","payment due"]));
+    add("due_date",dueDate(t));
   } else if(type==="payslip"){
     add("type","payslip");
     add("employer",guessEmployer(t));
@@ -590,7 +671,7 @@ function extractFields(type,t){
     add("super_sg",moneyNear(t,["super guarantee","superannuation guarantee","sgc","employer super","employer contribution"]));
     add("super_sacrifice",moneyNear(t,["salary sacrifice super","super salary sacrifice","ss super","voluntary super","personal super","salary sacrifice"]));
     add("net",moneyNear(t,["net pay","net amount","take home","net"]));
-    add("ytd_gross",moneyNear(t,["ytd gross","year to date gross","gross ytd"]));
+    add("ytd_gross",moneyNear(t,["ytd gross","year to date gross","gross ytd"])||ytdGrossHeader(t));
   } else if(type==="rates"){
     add("type","rates_notice");
     add("council",guessCouncil(t));
@@ -612,12 +693,22 @@ function guessProvider(t){
   for(const k of known)if(new RegExp("\\b"+k.replace(/ /g,"\\s?")+"\\b","i").test(t))return k;
   return "";
 }
+/* "YTD Gross Payments | YTD Tax | …" header row with the values on the next
+   line; YTD gross is the leftmost column, so take the first money value there */
+function ytdGrossHeader(t){
+  const m=t.match(/ytd gross[^\n$]{0,80}\n[^\n$]{0,10}\$\s?([0-9]{1,3}(?:,[0-9]{3})*\.[0-9]{2})/i);
+  return m?m[1].replace(/,/g,""):"";
+}
 function guessEmployer(t){
   // try labelled pattern first
   let m=t.match(/(?:employer|company name|paid by|trading as)\s*[:\-]?\s*([A-Z][A-Za-z0-9&'.\- ]{2,50})/i);
   if(m)return m[1].trim();
   // "CompanyName Payslip" header pattern (many payslips omit an explicit label)
   m=t.match(/^([A-Z][A-Za-z0-9&'.\- ]{2,50})\s+(?:payslip|pay slip|pay advice)/im);
+  if(m)return m[1].trim();
+  // name preceding an ABN, e.g. "Central Goldfields Shire Council, ABN : 821…"
+  // (not line-anchored: label/value boxes often share a row in the flow text)
+  m=t.match(/([A-Z][A-Za-z0-9&' ]{2,60}?),?\s*ABN\s*:?/);
   if(m)return m[1].trim();
   return "";
 }
@@ -645,7 +736,7 @@ function summaryLine(type,fields){
   if(type==="utility"){
     if(get("provider"))   parts.push("Provider: "+get("provider"));
     if(get("period"))     parts.push("Period: "+get("period"));
-    if(get("usage_kwh"))  parts.push("Usage: "+get("usage_kwh")+" kWh");
+    if(get("usage"))      parts.push("Usage: "+get("usage")+(get("usage_unit")?" "+get("usage_unit"):""));
     if(get("amount_due")) parts.push("Amount: $"+get("amount_due"));
     if(get("due_date"))   parts.push("Due: "+get("due_date"));
   } else if(type==="payslip"){

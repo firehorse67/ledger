@@ -26,7 +26,7 @@ Auto-detected by keyword scoring, or set manually:
 
 | Type | Extracted fields |
 |---|---|
-| **Utility bill** | Provider, account, period, kWh usage, avg daily usage, amount due, due date |
+| **Utility bill** | Provider, account, meter ID (NMI/MIRN/serial), period, usage with unit (kWh/MJ/kL), avg daily usage, amount due, due date |
 | **Payslip** | Employer, pay period, pay date, gross, tax, super guarantee, salary sacrifice super, net, YTD gross |
 | **Rates notice** | Council, assessment number, financial year, capital improved value, rateable value, amount due, due date |
 | **General document** | Date, amount |
