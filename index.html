@@ -372,15 +372,17 @@ $("#go").onclick=async()=>{
       repeatingFPs=buildFingerprintSet(rawLines,n);
     }
     let plainText="";
-    const bodyParts=[];
+    const layoutParts=[];
     const flowParts=[];
     for(let p=1;p<=n;p++){
       setProg(12+(p/n)*70,`Page ${p} of ${n}…`);
       const page=await doc.getPage(p);
       const tc=await page.getTextContent();
-      const {flow,layout}=renderPage(tc.items,page.view,repeatingFPs);
-      plainText+=" "+flow;
-      bodyParts.push(state.layout?layout:flow);
+      const {flow,layout,lines}=renderPage(tc.items,page.view,repeatingFPs);
+      // extraction runs on line-structured text so \n-anchored field regexes
+      // (e.g. the YTD-gross header/value pair) still see row boundaries
+      plainText+=" "+lines;
+      layoutParts.push(layout);
       flowParts.push(flow);
     }
     let ocrUsed=false;
@@ -391,9 +393,9 @@ $("#go").onclick=async()=>{
           setProg(86+(pct/100)*14,label);
         });
         plainText=ocr.plainText;
-        bodyParts.length=0;flowParts.length=0;
+        layoutParts.length=0;flowParts.length=0;
         ocr.pages.forEach(p=>{
-          bodyParts.push(state.layout?p.layout:p.flow);
+          layoutParts.push(p.layout);
           flowParts.push(p.flow);
         });
         ocrUsed=true;
@@ -407,10 +409,15 @@ $("#go").onclick=async()=>{
     setProg(96,"Extracting fields…");
     const fields=extractFields(type,plainText);
     const title=titleFor(type,fields,state.file.name);
+    const sep="\n\n"+"-".repeat(3)+"\n\n";
+    // layout mode only helps column-structured docs read from a native text
+    // layer; scanned/general and OCR output read far better as flowing paragraphs
+    const structured=type==="utility"||type==="payslip"||type==="rates";
+    const useLayout=state.layout&&structured&&!ocrUsed;
     state.result={
       type,pages:n,ocrUsed,
-      body:bodyParts.join("\n\n"+"-".repeat(3)+"\n\n"),
-      flowBody:flowParts.join("\n\n"+"-".repeat(3)+"\n\n"),
+      body:(useLayout?layoutParts:flowParts).join(sep),
+      flowBody:flowParts.join(sep),
       plainText,title,
       baseName:state.file.name.replace(/\.pdf$/i,"")
     };
@@ -455,7 +462,7 @@ function renderPage(items,pageView,repeatingFPs){
   const p85=allSizes[Math.floor(allSizes.length*0.85)]||median;
   const p95=allSizes[Math.floor(allSizes.length*0.95)]||p85;
 
-  const flowBlocks = [], layoutLines = [];
+  const flowBlocks = [], layoutLines = [], flowLines = [];
   let currentBlock = [];
   let prevProcessedRow = null;
 
@@ -478,6 +485,7 @@ function renderPage(items,pageView,repeatingFPs){
 
     // flow: reconstruct paragraphs by merging wrapped lines
     const lineText = prefix + text;
+    flowLines.push(lineText);
     if (prefix) {
       if (currentBlock.length > 0) {
         flowBlocks.push(currentBlock.join(" "));
@@ -527,7 +535,8 @@ function renderPage(items,pageView,repeatingFPs){
 
   return {
     flow: flowBlocks.join("\n\n"),
-    layout: layoutLines.join("\n")
+    layout: layoutLines.join("\n"),
+    lines: flowLines.join("\n")
   };
 }
 
@@ -962,8 +971,6 @@ function tagsFor(type,fields){
     tags.push("income");
   } else if(type==="rates"){
     tags.push("council","rates");
-  } else if(type==="scanned"){
-    tags.push("scanned");
   }
   return tags.filter(Boolean);
 }
