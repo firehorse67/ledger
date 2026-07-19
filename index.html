@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ledger — Bills · Payslips · Rates → Markdown</title>
 <meta name="theme-color" content="#006b54">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQwIiBmaWxsPSIjMDA2YjU0Ii8+PHJlY3QgeD0iNDgiIHk9IjM2IiB3aWR0aD0iOTYiIGhlaWdodD0iMTIwIiByeD0iOCIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjY0IiB5PSI2MCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjEwIiByeD0iNSIgZmlsbD0iIzAwNmI1NCIvPjxyZWN0IHg9IjY0IiB5PSI4NCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjEwIiByeD0iNSIgZmlsbD0iIzAwNmI1NCIvPjxyZWN0IHg9IjY0IiB5PSIxMDgiIHdpZHRoPSI0MCIgaGVpZ2h0PSIxMCIgcng9IjUiIGZpbGw9IiMwMDZiNTQiLz48Y2lyY2xlIGN4PSIxMzIiIGN5PSIxMzIiIHI9IjI4IiBmaWxsPSIjMDA1MTNmIi8+PHBhdGggZD0iTTEyMCAxMzIgbDggOCBsMTYgLTE4IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+">
-<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiTGVkZ2VyIOKAlCBCaWxscywgUGF5c2xpcHMgJiBSYXRlcyB0byBNYXJrZG93biIsInNob3J0X25hbWUiOiJMZWRnZXIiLCJkZXNjcmlwdGlvbiI6IkxvY2FsLCBicm93c2VyLWJhc2VkIGNvbnZlcnRlciBmb3IgQXVzdHJhbGlhbiBiaWxscywgcGF5c2xpcHMgYW5kIHJhdGVzIG5vdGljZXMgaW50byBNYXJrZG93bi9KU09OLiIsInN0YXJ0X3VybCI6Ii4vcGRmLW1hcmtkb3duLmh0bWwiLCJzY29wZSI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y2ZjlmNyIsInRoZW1lX2NvbG9yIjoiIzAwNmI1NCIsImljb25zIjpbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBeE9USWdNVGt5SWo0OGNtVmpkQ0IzYVdSMGFEMGlNVGt5SWlCb1pXbG5hSFE5SWpFNU1pSWdjbmc5SWpRd0lpQm1hV3hzUFNJak1EQTJZalUwSWk4K1BISmxZM1FnZUQwaU5EZ2lJSGs5SWpNMklpQjNhV1IwYUQwaU9UWWlJR2hsYVdkb2REMGlNVEl3SWlCeWVEMGlPQ0lnWm1sc2JEMGlJMlptWm1abVppSXZQanh5WldOMElIZzlJalkwSWlCNVBTSTJNQ0lnZDJsa2RHZzlJalkwSWlCb1pXbG5hSFE5SWpFd0lpQnllRDBpTlNJZ1ptbHNiRDBpSXpBd05tSTFOQ0l2UGp4eVpXTjBJSGc5SWpZMElpQjVQU0k0TkNJZ2QybGtkR2c5SWpZMElpQm9aV2xuYUhROUlqRXdJaUJ5ZUQwaU5TSWdabWxzYkQwaUl6QXdObUkxTkNJdlBqeHlaV04wSUhnOUlqWTBJaUI1UFNJeE1EZ2lJSGRwWkhSb1BTSTBNQ0lnYUdWcFoyaDBQU0l4TUNJZ2NuZzlJalVpSUdacGJHdzlJaU13TURaaU5UUWlMejQ4WTJseVkyeGxJR040UFNJeE16SWlJR041UFNJeE16SWlJSEk5SWpJNElpQm1hV3hzUFNJak1EQTFNVE5tSWk4K1BIQmhkR2dnWkQwaVRURXlNQ0F4TXpJZ2JEZ2dPQ0JzTVRZZ0xURTRJaUJ6ZEhKdmEyVTlJaU5tWm1abVptWWlJSE4wY205clpTMTNhV1IwYUQwaU5pSWdabWxzYkQwaWJtOXVaU0lnYzNSeWIydGxMV3hwYm1WallYQTlJbkp2ZFc1a0lpQnpkSEp2YTJVdGJHbHVaV3B2YVc0OUluSnZkVzVrSWk4K1BDOXpkbWMrIiwic2l6ZXMiOiJhbnkiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCIsInB1cnBvc2UiOiJhbnkifV19">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiTGVkZ2VyIOKAlCBCaWxscyDCtyBQYXlzbGlwcyDCtyBSYXRlcyDihpIgTWFya2Rvd24iLCJzaG9ydF9uYW1lIjoiTGVkZ2VyIiwiZGVzY3JpcHRpb24iOiJMb2NhbC1vbmx5IGRvY3VtZW50IHRvIE1hcmtkb3duIC8gSlNPTiBjb252ZXJ0ZXIiLCJzdGFydF91cmwiOiIuL2luZGV4Lmh0bWwiLCJzY29wZSI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y2ZjlmNyIsInRoZW1lX2NvbG9yIjoiIzAwNmI1NCIsImljb25zIjpbeyJzcmMiOiJhbmRyb2lkLWNocm9tZS0xOTJ4MTkyLnBuZyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9wbmcifSx7InNyYyI6ImFuZHJvaWQtY2hyb21lLTUxMng1MTIucG5nIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -140,7 +143,7 @@
     <div class="brand"><h1>Ledger<span class="dot">.</span></h1><span class="tag">bills · payslips · rates → markdown</span></div>
     <div class="privacy"><span class="pulse"></span> 100% in-browser · nothing uploaded</div>
   </header>
-  <p class="lede">Turn a bill, payslip or rates notice into a clean Markdown note with a labelled front-matter header — ready to drop into your notes app and interrogate with AI. Everything runs locally; nothing is sent anywhere.</p>
+  <p class="lede">Turn a bill, payslip or rates notice into a JSON file. Turn scanned PDF files into Markdown. Everything runs locally; nothing is sent anywhere.</p>
 
   <div id="drop" class="drop">
     <div class="ico">🧾</div>
@@ -159,6 +162,7 @@
         <button data-t="utility">Utility bill</button>
         <button data-t="payslip">Payslip</button>
         <button data-t="rates">Rates notice</button>
+        <button data-t="scanned">Scanned / General</button>
       </div>
       <div class="hint">Auto-detect scans for keywords; override if it guesses wrong.</div>
     </div>
@@ -381,15 +385,17 @@ $("#go").onclick=async()=>{
     }
     let ocrUsed=false;
     if(plainText.trim().length<100){
-      setProg(86,`No text layer found — running OCR on page 1 of ${n}…`);
+      setProg(86,`No text layer found — running OCR on ${n} page${n>1?'s':''}…`);
       try{
-        const ocr=await runOcr(doc,n,(pct,page)=>{
-          const label=page?`OCR: page ${page} of ${n}…`:`OCR: page ${Math.round(pct*100)}%…`;
-          setProg(86+pct*8,label);
+        const ocr=await runOcr(doc,n,(pct,label)=>{
+          setProg(86+(pct/100)*14,label);
         });
         plainText=ocr.plainText;
         bodyParts.length=0;flowParts.length=0;
-        ocr.pages.forEach(t=>{bodyParts.push(t);flowParts.push(t);});
+        ocr.pages.forEach(p=>{
+          bodyParts.push(state.layout?p.layout:p.flow);
+          flowParts.push(p.flow);
+        });
         ocrUsed=true;
       }catch(err){
         console.error(err);
@@ -449,7 +455,10 @@ function renderPage(items,pageView,repeatingFPs){
   const p85=allSizes[Math.floor(allSizes.length*0.85)]||median;
   const p95=allSizes[Math.floor(allSizes.length*0.95)]||p85;
 
-  const flowLines=[],layoutLines=[];
+  const flowBlocks = [], layoutLines = [];
+  let currentBlock = [];
+  let prevProcessedRow = null;
+
   for(const r of rows){
     r.items.sort((a,b)=>a.x-b.x);
     const text=joinLineItems(r.items);
@@ -466,7 +475,37 @@ function renderPage(items,pageView,repeatingFPs){
     const isBold=r.items.some(i=>i.isBold);
     const lvl=headingLevel(avgSize,{median,p85,p95},isBold);
     const prefix=lvl===2?"## ":lvl===1?"### ":"";
-    flowLines.push(prefix+text);
+
+    // flow: reconstruct paragraphs by merging wrapped lines
+    const lineText = prefix + text;
+    if (prefix) {
+      if (currentBlock.length > 0) {
+        flowBlocks.push(currentBlock.join(" "));
+        currentBlock = [];
+      }
+      flowBlocks.push(lineText);
+    } else {
+      let shouldStartNew = false;
+      if (prevProcessedRow) {
+        const prevGap = Math.abs(prevProcessedRow.y - r.y);
+        const threshold = Math.max(12, avgSize * 1.55);
+        const prevText = joinLineItems(prevProcessedRow.items) || "";
+        const isSpeaker = /^[A-Z][a-zA-Z0-9_\s]{1,15}:/.test(text);
+        const isListItem = /^\s*(?:[\*\-\+]|\d+\.)\s+/.test(text);
+
+        if (prevGap > threshold || prevText.length < 55 || isSpeaker || isListItem) {
+          shouldStartNew = true;
+        }
+      } else {
+        shouldStartNew = true;
+      }
+
+      if (shouldStartNew && currentBlock.length > 0) {
+        flowBlocks.push(currentBlock.join(" "));
+        currentBlock = [];
+      }
+      currentBlock.push(text);
+    }
 
     // layout: preserve column spacing using actual item widths
     let lay="",lastEnd=null;
@@ -479,8 +518,17 @@ function renderPage(items,pageView,repeatingFPs){
       lastEnd=i.x+i.width;
     }
     layoutLines.push((prefix+lay).replace(/\s+$/,""));
+    prevProcessedRow = r;
   }
-  return{flow:flowLines.join("\n"),layout:layoutLines.join("\n")};
+
+  if (currentBlock.length > 0) {
+    flowBlocks.push(currentBlock.join(" "));
+  }
+
+  return {
+    flow: flowBlocks.join("\n\n"),
+    layout: layoutLines.join("\n")
+  };
 }
 
 /* ---------- OCR fallback (scanned / image-only PDFs) ---------- */
@@ -494,35 +542,172 @@ function loadTesseract(){
     document.head.appendChild(s);
   });
 }
-/* rasterises each page via pdf.js and runs Tesseract over it; only invoked
-   when the text layer is near-empty, so normal (non-scanned) PDFs never pay this cost */
+
 async function runOcr(doc,n,onProgress){
   await loadTesseract();
-  const worker=await window.Tesseract.createWorker("eng",1,{
-    logger:m=>{
-      if(m.status==="recognizing text")onProgress(m.progress||0);
+  
+  const lang = "eng";
+  
+  // 1. Render all pages to canvases
+  const pageCanvases = [];
+  for (let p = 1; p <= n; p++) {
+    onProgress(1 + (p / n) * 9, `Rasterising page ${p} of ${n}…`);
+    const page = await doc.getPage(p);
+    const viewport = page.getViewport({ scale: 2.0 }); // Scale 2.0 for higher OCR accuracy
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width; canvas.height = viewport.height;
+    const ctx = canvas.getContext("2d");
+    
+    // Apply grayscale, contrast, and brightness filters to clean up scans
+    ctx.filter = "grayscale(1) contrast(3) brightness(1.05)";
+    
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    pageCanvases.push({ pageNum: p, canvas, view: page.view });
+    page.cleanup();
+  }
+  
+  // 3. Sequential OCR processing
+  const RESTART_THRESHOLD = 8;
+  const results = [];
+  
+  let worker = null;
+  let pagesProcessed = 0;
+  
+  async function getWorker() {
+    if (worker && pagesProcessed < RESTART_THRESHOLD) {
+      return worker;
     }
-  });
-  const pages=[];
-  let plainText="";
-  try{
-    for(let p=1;p<=n;p++){
-      onProgress(0,p);
-      const page=await doc.getPage(p);
-      const viewport=page.getViewport({scale:2});
-      const canvas=document.createElement("canvas");
-      canvas.width=viewport.width;canvas.height=viewport.height;
-      const ctx=canvas.getContext("2d");
-      await page.render({canvasContext:ctx,canvas,viewport}).promise;
-      const{data}=await worker.recognize(canvas);
-      const text=normText((data.text||"").trim());
-      pages.push(text);
-      plainText+=" "+text;
+    if (worker) {
+      console.log("Recycling OCR worker to free memory…");
+      try { await worker.terminate(); } catch (e) {}
+    }
+    const oem = lang === 'equ' ? 0 : 1;
+    worker = await window.Tesseract.createWorker(lang, oem);
+    pagesProcessed = 0;
+    return worker;
+  }
+  
+  try {
+    for (let idx = 0; idx < n; idx++) {
+      const pc = pageCanvases[idx];
+      const pageNum = pc.pageNum;
+      
+      onProgress(15 + (idx / n) * 85, `OCR: page ${pageNum} of ${n}…`);
+      
+      const activeWorker = await getWorker();
+      pagesProcessed++;
+      
+      try {
+        const { data } = await activeWorker.recognize(pc.canvas, {
+          user_defined_dpi: '300',
+          tessedit_pageseg_mode: '3'
+        }, { blocks: true });
+        
+        console.log("Tesseract recognize output text length:", (data.text || "").length);
+        console.log("blocks exists:", !!data.blocks, "blocks length:", data.blocks ? data.blocks.length : 'N/A');
+        
+        // Extract words from blocks hierarchy (required in Tesseract.js v6+)
+        let wordsList = [];
+        if (data.words && data.words.length > 0) {
+          wordsList = data.words;
+        } else if (data.blocks) {
+          for (const block of data.blocks) {
+            if (block.paragraphs) {
+              for (const para of block.paragraphs) {
+                if (para.lines) {
+                  for (const line of para.lines) {
+                    if (line.words) {
+                      wordsList.push(...line.words);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        const pageItems = [];
+        const ocrWords = wordsList.filter(w => w.bbox && w.text && w.text.trim());
+        
+        console.log("OCR page completed. Words found:", ocrWords.length);
+        
+        if (ocrWords.length > 0) {
+          // Sort words top-to-bottom, left-to-right
+          ocrWords.sort((a, b) => ((a.bbox.y0 + a.bbox.y1) - (b.bbox.y0 + b.bbox.y1)) || (a.bbox.x0 - b.bbox.x0));
+          
+          // Group words into lines/bands using vertical overlap tolerance
+          const ocrBands = [];
+          for (const w of ocrWords) {
+            const mid = (w.bbox.y0 + w.bbox.y1) / 2;
+            const h = w.bbox.y1 - w.bbox.y0;
+            const band = ocrBands[ocrBands.length - 1];
+            if (band && Math.abs(mid - band.midSum / band.words.length) < 0.6 * Math.max(band.hSum / band.words.length, h)) {
+              band.words.push(w);
+              band.midSum += mid;
+              band.hSum += h;
+              band.hMax = Math.max(band.hMax, h);
+            } else {
+              ocrBands.push({ words: [w], midSum: mid, hSum: h, hMax: h });
+            }
+          }
+          
+          const pageH_canvas = pc.canvas.height;
+          for (const band of ocrBands) {
+            const bandY = (pageH_canvas - band.midSum / band.words.length) / 2.0;
+            const bandH = (band.hSum / band.words.length) / 2.0;
+            for (const w of band.words) {
+              pageItems.push({
+                str: normText(w.text),
+                width: (w.bbox.x1 - w.bbox.x0) / 2.0,
+                height: bandH,
+                transform: [
+                  (w.bbox.x1 - w.bbox.x0) / 2.0,
+                  0,
+                  0,
+                  bandH,
+                  w.bbox.x0 / 2.0,
+                  bandY
+                ],
+                fontName: 'OCR_Font'
+              });
+            }
+          }
+        }
+        
+        console.log("pageItems mapped:", pageItems.length);
+        
+        const { flow, layout } = renderPage(pageItems, pc.view, new Set());
+        
+        console.log("renderPage output: flow length =", flow.length, "layout length =", layout.length);
+        
+        results.push({
+          pageNum,
+          flow,
+          layout,
+          plainText: data.text || ""
+        });
+      } catch (err) {
+        console.error(`OCR failed for page ${pageNum}`, err);
+        results.push({
+          pageNum,
+          flow: `[OCR Failed on Page ${pageNum}]`,
+          layout: `[OCR Failed on Page ${pageNum}]`,
+          plainText: ""
+        });
+      }
     }
   } finally {
-    await worker.terminate();
+    if (worker) {
+      try { await worker.terminate(); } catch (e) {}
+    }
   }
-  return{pages,plainText};
+  
+  return {
+    pages: results,
+    plainText: results.map(r => r.plainText).join(" ")
+  };
 }
 
 /* ---------- detection ---------- */
@@ -681,6 +866,9 @@ function extractFields(type,t){
     add("rateable_value",moneyNear(t,["rateable value","net annual value","nav"]));
     add("amount_due",moneyNear(t,["total amount","total rates","amount due","total due","total payable"]));
     add("due_date",dateNear(t,["due date","pay by","first instalment","payment due"]));
+  } else if(type==="scanned"){
+    add("type","scanned_document");
+    add("date",dateNear(t,["date","dated"])||"");
   } else {
     add("type","document");
     add("date",dateNear(t,["date","dated"])||"");
@@ -725,6 +913,7 @@ function titleFor(type,fields,fname){
   if(type==="utility")return `${get("provider")||"Utility"} bill — ${get("period")||get("due_date")||""}`.trim().replace(/—\s*$/,"").trim();
   if(type==="payslip")return `Payslip — ${get("pay_period")||get("pay_date")||""}`.trim().replace(/—\s*$/,"").trim();
   if(type==="rates")return `${get("council")||"Council"} rates — ${get("period")||""}`.trim().replace(/—\s*$/,"").trim();
+  if(type==="scanned")return fname.replace(/\.pdf$/i,"");
   return fname.replace(/\.pdf$/i,"");
 }
 
@@ -753,6 +942,8 @@ function summaryLine(type,fields){
     if(get("period"))     parts.push("Period: "+get("period"));
     if(get("amount_due")) parts.push("Amount: $"+get("amount_due"));
     if(get("due_date"))   parts.push("Due: "+get("due_date"));
+  } else if(type==="scanned"){
+    if(get("date"))       parts.push("Date: "+get("date"));
   } else {
     if(get("date"))       parts.push("Date: "+get("date"));
     if(get("amount"))     parts.push("Amount: $"+get("amount"));
@@ -771,6 +962,8 @@ function tagsFor(type,fields){
     tags.push("income");
   } else if(type==="rates"){
     tags.push("council","rates");
+  } else if(type==="scanned"){
+    tags.push("scanned");
   }
   return tags.filter(Boolean);
 }
@@ -778,7 +971,7 @@ function tagsFor(type,fields){
 /* ---------- results UI ---------- */
 function showResults(){
   const r=state.result;
-  const labels={utility:"utility bill",payslip:"payslip",rates:"rates notice",document:"unrecognised — generic"};
+  const labels={utility:"utility bill",payslip:"payslip",rates:"rates notice",scanned:"scanned / general",document:"unrecognised — generic"};
   $("#typeBadge").textContent=labels[r.type]||r.type;
   $("#pageBadge").textContent=r.pages+" page"+(r.pages>1?"s":"");
   $("#ocrBadge").classList.toggle("hidden",!r.ocrUsed);
