@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.ibb.co/v4LPWknc/ledger.png" alt="Ledger" />
+  <img src="screenshot.png" alt="Ledger — local PDF to Markdown / JSON converter" />
 </p>
 
 # Ledger — PDF to Markdown / JSON Conversion

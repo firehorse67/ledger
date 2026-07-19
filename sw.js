@@ -1,8 +1,7 @@
-const CACHE_NAME = 'ledger-shell-v2';
+const CACHE_NAME = 'ledger-shell-v3';
 const ASSETS = [
   './',
   './index.html',
-  './site.webmanifest',
   './favicon.ico',
   './favicon-16x16.png',
   './favicon-32x32.png',
@@ -85,6 +84,7 @@ self.addEventListener('fetch', (e) => {
           url.origin === location.origin ||
           url.hostname.includes('cdnjs.cloudflare.com') ||
           url.hostname.includes('jsdelivr.net') ||
+          url.hostname.includes('tessdata.projectnaptha.com') ||
           url.hostname.includes('fonts.googleapis.com') ||
           url.hostname.includes('fonts.gstatic.com')
         ) {
