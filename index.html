@@ -566,10 +566,11 @@ async function runOcr(doc,n,onProgress){
     const canvas = document.createElement("canvas");
     canvas.width = viewport.width; canvas.height = viewport.height;
     const ctx = canvas.getContext("2d");
-    
-    // Apply grayscale, contrast, and brightness filters to clean up scans
-    ctx.filter = "grayscale(1) contrast(3) brightness(1.05)";
-    
+
+    // Fill white so pages with a transparent background aren't OCR'd on black.
+    // No manual grayscale/contrast pass: pdf.js resets ctx.filter during render
+    // (setting it here was a verified no-op), and Tesseract's Leptonica engine
+    // already runs its own adaptive binarisation, which handles thresholding better.
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     await page.render({ canvasContext: ctx, viewport }).promise;
