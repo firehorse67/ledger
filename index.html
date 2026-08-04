@@ -210,7 +210,7 @@
     <div class="dlbar">
       <button id="copyMd" class="btn btn-ghost">Copy Markdown</button>
       <button id="dlMd" class="btn btn-primary">Download .md</button>
-      <button id="dlJson" class="btn btn-ghost">Download JSON (Organiser)</button>
+      <button id="dlJson" class="btn btn-ghost">Download JSON</button>
     </div>
   </div>
 
@@ -933,8 +933,9 @@ function titleFor(type,fields,fname){
   return fname.replace(/\.pdf$/i,"");
 }
 
-/* compact single-line summary — placed at top of Organiser note content so
-   Gemini's 400-character preview captures all key figures */
+/* compact single-line summary — placed at top of the JSON note content so
+   an AI assistant sees all key figures within its context/preview window
+   even before reading the full extracted text below it */
 function summaryLine(type,fields){
   const get=k=>(fields.find(f=>f.key===k)||{}).val||"";
   const parts=[];
@@ -1033,9 +1034,10 @@ function fullMarkdown(){
   return cleanMarkdown(buildFrontMatter()+"\n\n# "+state.result.title+"\n\n"+state.result.body.trim()+"\n");
 }
 
-/* Organiser-compatible JSON: summary line first so it appears within Gemini's
-   400-character note preview; body uses flow text regardless of layout toggle */
-function buildOrgJson(){
+/* { title, content, tags } note JSON — matches the shape a note-taking app's
+   generic JSON importer expects (e.g. the Wiki's importNoteJson); summary line
+   goes first, body uses flow text regardless of the layout toggle */
+function buildJson(){
   const r=state.result;
   const summary=summaryLine(r.type,state.fields);
   const body=r.flowBody.trim();
@@ -1070,7 +1072,7 @@ $("#dlMd").onclick=()=>{
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 };
 $("#dlJson").onclick=()=>{
-  const blob=new Blob([buildOrgJson()],{type:"application/json"});
+  const blob=new Blob([buildJson()],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   a.download=(state.result.baseName||"document")+".json";a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
