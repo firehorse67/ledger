@@ -1,6 +1,5 @@
-const CACHE_NAME = 'ledger-shell-v3';
+const CACHE_NAME = 'ledger-shell-v4';
 const ASSETS = [
-  './',
   './index.html',
   './favicon.ico',
   './favicon-16x16.png',
@@ -8,10 +7,16 @@ const ASSETS = [
   './apple-touch-icon.png',
   './android-chrome-192x192.png',
   './android-chrome-512x512.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.1.200/pdf.min.mjs',
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.1.200/pdf.worker.min.mjs',
-  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap'
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.4.299/pdf.min.mjs',
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.4.299/pdf.worker.min.mjs',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'
 ];
+const CACHEABLE_HOSTS = new Set([
+  'cdnjs.cloudflare.com',
+  'cdn.jsdelivr.net',
+  'fonts.googleapis.com',
+  'fonts.gstatic.com'
+]);
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -78,16 +83,10 @@ self.addEventListener('fetch', (e) => {
         if (!networkResponse || networkResponse.status !== 200) {
           return networkResponse;
         }
-        // Cache dynamic assets from approved domains (like cdnjs or npm)
+        // Cache dynamic assets only from exact, known origins (substring
+        // matching would also accept look-alike hosts such as jsdelivr.net.evil.com)
         const url = new URL(e.request.url);
-        if (
-          url.origin === location.origin ||
-          url.hostname.includes('cdnjs.cloudflare.com') ||
-          url.hostname.includes('jsdelivr.net') ||
-          url.hostname.includes('tessdata.projectnaptha.com') ||
-          url.hostname.includes('fonts.googleapis.com') ||
-          url.hostname.includes('fonts.gstatic.com')
-        ) {
+        if (url.origin === location.origin || CACHEABLE_HOSTS.has(url.hostname)) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseToCache));
         }

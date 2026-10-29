@@ -61,12 +61,14 @@ Keep a copy on each machine you use. There is no hosted version — though if yo
 
 ## Features
 
-- **100% local** — PDF.js runs entirely in-browser; no file ever leaves your machine
+- **100% local & private** — PDF.js runs entirely in-browser; no file or document text is ever uploaded or sent anywhere.
+- **Sensitive document security** — ideal for processing confidential documents (utility bills, payslips, rates notices) with full client-side privacy guarantees.
 - **Auto-detection** — weighted keyword scoring identifies document type
 - **Readable reconstruction** — wrapped lines are rejoined into paragraphs for prose, with an optional layout-preserving mode for tabular documents
 - **Heading detection** — font size metadata promotes section headers to Markdown `##`
 - **Text normalisation** — ligatures (`ﬁ→fi`), smart quotes, en/em dashes, non-breaking spaces cleaned automatically
 - **OCR for scanned PDFs** — if a PDF has no text layer (scanned or photographed), Tesseract.js is loaded on demand and run over every page, word by word, with grayscale/contrast pre-processing for cleaner reads; results are flagged with an "OCR'd" badge since accuracy is lower than a native text layer
+- **Password-protected PDFs** — encrypted payslips and statements are unlocked locally; the password is typed into the page, used only by PDF.js in memory, and never stored
 - **Editable front-matter** — review and correct any field before export; add custom fields
 - **JSON export** — summary line placed at the top of note content so AI assistants see all key figures within their context preview window
 - **Installable** — if you host the file over http/https (rather than opening it as a local file), it's an installable PWA with offline support after first load
