@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ledger-shell-v4';
+const CACHE_NAME = 'ledger-shell-v5';
 const ASSETS = [
   './index.html',
   './favicon.ico',
@@ -7,8 +7,8 @@ const ASSETS = [
   './apple-touch-icon.png',
   './android-chrome-192x192.png',
   './android-chrome-512x512.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.4.299/pdf.min.mjs',
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.4.299/pdf.worker.min.mjs',
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.min.mjs',
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.worker.min.mjs',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap'
 ];
 const CACHEABLE_HOSTS = new Set([

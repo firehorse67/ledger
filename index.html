@@ -8,13 +8,13 @@
      'unsafe-inline' covers the inline app script; 'wasm-unsafe-eval' and blob:
      are required by the Tesseract OCR worker. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; connect-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; manifest-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
-<title>Ledger — Bills · Payslips · Rates → Markdown</title>
+<title>Ledger — Bills · Payslips · Rates · Receipts → Markdown</title>
 <meta name="theme-color" content="#006b54">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiTGVkZ2VyIOKAlCBCaWxscyDCtyBQYXlzbGlwcyDCtyBSYXRlcyDihpIgTWFya2Rvd24iLCJzaG9ydF9uYW1lIjoiTGVkZ2VyIiwiZGVzY3JpcHRpb24iOiJMb2NhbC1vbmx5IGRvY3VtZW50IHRvIE1hcmtkb3duIC8gSlNPTiBjb252ZXJ0ZXIiLCJzdGFydF91cmwiOiIuL2luZGV4Lmh0bWwiLCJzY29wZSI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y2ZjlmNyIsInRoZW1lX2NvbG9yIjoiIzAwNmI1NCIsImljb25zIjpbeyJzcmMiOiJhbmRyb2lkLWNocm9tZS0xOTJ4MTkyLnBuZyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9wbmcifSx7InNyYyI6ImFuZHJvaWQtY2hyb21lLTUxMng1MTIucG5nIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiTGVkZ2VyIOKAlCBCaWxscyDCtyBQYXlzbGlwcyDCtyBSYXRlcyDCtyBSZWNlaXB0cyDihpIgTWFya2Rvd24iLCJzaG9ydF9uYW1lIjoiTGVkZ2VyIiwiZGVzY3JpcHRpb24iOiJMb2NhbC1vbmx5IGJpbGwsIHBheXNsaXAsIHJhdGVzIGFuZCByZWNlaXB0IHRvIE1hcmtkb3duIC8gSlNPTiBjb252ZXJ0ZXIiLCJzdGFydF91cmwiOiIuL2luZGV4Lmh0bWwiLCJzY29wZSI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y2ZjlmNyIsInRoZW1lX2NvbG9yIjoiIzAwNmI1NCIsImljb25zIjpbeyJzcmMiOiJhbmRyb2lkLWNocm9tZS0xOTJ4MTkyLnBuZyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9wbmcifSx7InNyYyI6ImFuZHJvaWQtY2hyb21lLTUxMng1MTIucG5nIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyJ9XX0=">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -113,6 +113,7 @@
   .fm{padding:16px}
   .fm h4{font-size:14px;font-weight:600;margin-bottom:3px}
   .fm .note{font-size:12px;color:var(--on-surface-v);margin-bottom:14px}
+  .fm .note a{color:var(--primary)}
   .frow{margin-bottom:10px}
   .frow label{display:block;font-size:10.5px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--on-surface-v);margin-bottom:4px;font-family:'JetBrains Mono',monospace}
   .frow input{width:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;padding:7px 10px;border:1px solid var(--outline-v);border-radius:4px;background:transparent;color:var(--on-surface);transition:.13s}
@@ -152,17 +153,17 @@
 <div class="wrap">
 
   <header class="top">
-    <div class="brand"><h1>Ledger<span class="dot">.</span></h1><span class="tag">bills · payslips · rates → markdown</span></div>
+    <div class="brand"><h1>Ledger<span class="dot">.</span></h1><span class="tag">bills · payslips · rates · receipts → markdown</span></div>
     <div class="privacy"><span class="pulse"></span> 100% in-browser · nothing uploaded</div>
   </header>
-  <p class="lede">Turn a bill, payslip or rates notice into a JSON file. Turn scanned PDF files into Markdown. Everything runs locally; nothing is sent anywhere.</p>
+  <p class="lede">Turn a bill, payslip, rates notice or receipt — PDF or photo — into Markdown or JSON with the key figures pulled out. Everything runs locally; nothing is sent anywhere.</p>
   
   <div id="drop" class="drop">
     <div class="ico">🧾</div>
-    <h2>Drop a PDF document here</h2>
-    <p>utility bill, payslip, or council rates notice — stays on your machine</p>
+    <h2>Drop a PDF or photo here</h2>
+    <p>utility bill, payslip, rates notice or receipt — stays on your machine</p>
     <span class="browse">Choose file</span>
-    <input id="file" type="file" accept="application/pdf,.pdf" class="hidden">
+    <input id="file" type="file" accept="application/pdf,.pdf,image/jpeg,image/png,image/webp,image/heic,.heic,.heif" class="hidden">
   </div>
   <div id="chip"></div>
 
@@ -174,7 +175,7 @@
         <button data-t="utility">Utility bill</button>
         <button data-t="payslip">Payslip</button>
         <button data-t="rates">Rates notice</button>
-        <button data-t="scanned">Scanned / General</button>
+        <button data-t="receipt">Receipt</button>
       </div>
       <div class="hint">Auto-detect scans for keywords; override if it guesses wrong.</div>
     </div>
@@ -235,11 +236,22 @@
 <div id="toast" class="toast"></div>
 
 <script type="importmap">
-{"integrity":{"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.4.299/pdf.min.mjs":"sha384-QCvhu/UPp22U/TNLVbQNONL82ES2yY717GAiqP9VVu37Y7+m9VPKvadGx9XlFvcp"}}
+{"integrity":{"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.min.mjs":"sha384-6MTG6VynDVMfHzijur0VKc9BdrA6HaXHZd+pK6iGWh2acDj3CibR0CRwHizMoy1N"}}
 </script>
 <script type="module">
-import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.4.299/pdf.min.mjs";
-pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.4.299/pdf.worker.min.mjs";
+import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.min.mjs";
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.5.438/pdf.worker.min.mjs";
+/* pdf.js 6 data files: WebAssembly decoders for JPEG 2000 / JBIG2 images
+   (common in scanned bills — without them those pages render blank and OCR
+   reads nothing), character maps, standard fonts and colour profiles.
+   cdnjs doesn't host these, so they come from the matching pdfjs-dist on jsdelivr. */
+const PDFJS_DATA="https://cdn.jsdelivr.net/npm/pdfjs-dist@6.5.438/";
+const PDFJS_OPTS={
+  wasmUrl:PDFJS_DATA+"wasm/",
+  cMapUrl:PDFJS_DATA+"cmaps/",cMapPacked:true,
+  standardFontDataUrl:PDFJS_DATA+"standard_fonts/",
+  iccUrl:PDFJS_DATA+"iccs/"
+};
 
 /* installable PWA support. No-op under file:// (SW registration requires http/https),
    and no-op if sw.js isn't alongside this file (e.g. viewed as a lone downloaded copy). */
@@ -313,6 +325,9 @@ function joinLineItems(items){
     const isSuperSub=((curr.height||curr.size||10)<(prev.height||prev.size||10)*0.75||(prev.height||prev.size||10)<(curr.height||curr.size||10)*0.75)&&Math.abs((curr.y||0)-(prev.y||0))>1;
     let needSpace=gap>threshold&&!result.endsWith(" ")&&!curr.str.startsWith(" ");
     if(isDropCap||isSuperSub)needSpace=false;
+    // OCR items are whole words Tesseract already separated, and its word boxes
+    // can overlap (seen on thresholded photos), so gaps can't be trusted
+    if(prev.ocr&&curr.ocr)needSpace=!result.endsWith(" ");
     result+=(needSpace?" ":"")+curr.str;
   }
   return result.trim();
@@ -343,11 +358,13 @@ drop.addEventListener("dragover",ev=>{ev.preventDefault();});
 drop.addEventListener("dragleave",()=>{if(--dragCounter===0)drop.classList.remove("over");});
 drop.addEventListener("drop",ev=>{ev.preventDefault();dragCounter=0;drop.classList.remove("over");setFile(ev.dataTransfer.files[0]);});
 fileInput.onchange=ev=>setFile(ev.target.files[0]);
+const isPdf=f=>f.type==="application/pdf"||/\.pdf$/i.test(f.name);
+const isImage=f=>/^image\//.test(f.type)||/\.(jpe?g|png|webp|heic|heif)$/i.test(f.name);
 function setFile(f){
   if(!f)return;
-  if(f.type!=="application/pdf"&&!f.name.toLowerCase().endsWith(".pdf")){toast("Please choose a PDF");return;}
+  if(!isPdf(f)&&!isImage(f)){toast("Please choose a PDF or a photo (JPG/PNG)");return;}
   state.file=f;
-  $("#chip").innerHTML=`<div class="chip"><span>📕</span><span class="nm">${escapeHtml(f.name)}</span><span class="sz">${fmtSize(f.size)}</span><span class="x">×</span></div>`;
+  $("#chip").innerHTML=`<div class="chip"><span>${isImage(f)?"📷":"📕"}</span><span class="nm">${escapeHtml(f.name)}</span><span class="sz">${fmtSize(f.size)}</span><span class="x">×</span></div>`;
   $("#chip").querySelector(".x").onclick=clearFile;
   $("#go").disabled=false;$("#clear").classList.remove("hidden");
 }
@@ -381,90 +398,93 @@ $("#go").onclick=async()=>{
   $("#go").disabled=true;$("#results").classList.remove("show");
   let task=null;
   try{
-    setProg(4,"Reading file…");
-    const buf=await state.file.arrayBuffer();
-    setProg(10,"Opening PDF…");
-    task=pdfjsLib.getDocument({data:buf,maxImageSize:52428800,isEvalSupported:false});
-    let cancelled=false;
-    task.onPassword=async(updatePassword,reason)=>{
-      setProg(10,"Waiting for password…");
-      const pw=await askPassword(reason===pdfjsLib.PasswordResponses.INCORRECT_PASSWORD);
-      if(pw===null){cancelled=true;task.destroy();return;}
-      setProg(10,"Opening PDF…");
-      updatePassword(pw);
+    const file=state.file;
+    let n=1,plainText="",ocrUsed=false,ocrConfidence=0;
+    const layoutParts=[],flowParts=[];
+    const takeOcr=ocr=>{
+      plainText=ocr.plainText;
+      layoutParts.length=0;flowParts.length=0;
+      ocr.pages.forEach(p=>{layoutParts.push(p.layout);flowParts.push(p.flow);});
+      ocrUsed=true;ocrConfidence=ocr.confidence;
     };
-    let doc;
-    try{doc=await task.promise;}
-    catch(err){if(cancelled){toast("Cancelled");$("#progress").classList.remove("show");return;}throw err;}
-    const n=doc.numPages;
-    // pre-scan up to 12 pages to detect repeating headers/footers
-    let repeatingFPs=new Set();
-    if(n>=3){
-      setProg(10,"Scanning for headers/footers…");
-      const rawLines=[];
-      const sampleN=Math.min(n,12);
-      for(let p=1;p<=sampleN;p++){
-        const pg=await doc.getPage(p);
-        const tc=await pg.getTextContent();
-        let cur=null;
-        for(const it of tc.items){
-          const y=Math.round(it.transform[5]);
-          if(!cur||Math.abs(y-cur.y)>4){if(cur)rawLines.push(cur.str.trim());cur={y,str:it.str};}
-          else{cur.str+=it.str;}
+    if(isImage(file)){
+      // photos (usually receipts) have no text layer: straight to OCR
+      setProg(4,"Reading photo…");
+      takeOcr(await runOcr(1,()=>rasteriseImage(file),(pct,label)=>setProg(4+(pct/100)*86,label),{alwaysRetry:true}));
+    } else {
+      setProg(4,"Reading file…");
+      const buf=await file.arrayBuffer();
+      setProg(10,"Opening PDF…");
+      task=pdfjsLib.getDocument({...PDFJS_OPTS,data:buf,maxImageSize:52428800,isEvalSupported:false});
+      let cancelled=false;
+      task.onPassword=async(updatePassword,reason)=>{
+        setProg(10,"Waiting for password…");
+        const pw=await askPassword(reason===pdfjsLib.PasswordResponses.INCORRECT_PASSWORD);
+        if(pw===null){cancelled=true;task.destroy();return;}
+        setProg(10,"Opening PDF…");
+        updatePassword(pw);
+      };
+      let doc;
+      try{doc=await task.promise;}
+      catch(err){if(cancelled){toast("Cancelled");$("#progress").classList.remove("show");return;}throw err;}
+      n=doc.numPages;
+      // pre-scan up to 12 pages to detect repeating headers/footers
+      let repeatingFPs=new Set();
+      if(n>=3){
+        setProg(10,"Scanning for headers/footers…");
+        const rawLines=[];
+        const sampleN=Math.min(n,12);
+        for(let p=1;p<=sampleN;p++){
+          const pg=await doc.getPage(p);
+          const tc=await pg.getTextContent();
+          let cur=null;
+          for(const it of tc.items){
+            const y=Math.round(it.transform[5]);
+            if(!cur||Math.abs(y-cur.y)>4){if(cur)rawLines.push(cur.str.trim());cur={y,str:it.str};}
+            else{cur.str+=it.str;}
+          }
+          if(cur)rawLines.push(cur.str.trim());
         }
-        if(cur)rawLines.push(cur.str.trim());
+        repeatingFPs=buildFingerprintSet(rawLines,n);
       }
-      repeatingFPs=buildFingerprintSet(rawLines,n);
-    }
-    let plainText="";
-    const layoutParts=[];
-    const flowParts=[];
-    for(let p=1;p<=n;p++){
-      setProg(12+(p/n)*70,`Page ${p} of ${n}…`);
-      const page=await doc.getPage(p);
-      const tc=await page.getTextContent();
-      const {flow,layout,lines}=renderPage(tc.items,page.view,repeatingFPs);
-      // extraction runs on line-structured text so \n-anchored field regexes
-      // (e.g. the YTD-gross header/value pair) still see row boundaries
-      plainText+=" "+lines;
-      layoutParts.push(layout);
-      flowParts.push(flow);
-    }
-    let ocrUsed=false;
-    if(plainText.trim().length<100){
-      setProg(86,`No text layer found — running OCR on ${n} page${n>1?'s':''}…`);
-      try{
-        const ocr=await runOcr(doc,n,(pct,label)=>{
-          setProg(86+(pct/100)*14,label);
-        });
-        plainText=ocr.plainText;
-        layoutParts.length=0;flowParts.length=0;
-        ocr.pages.forEach(p=>{
-          layoutParts.push(p.layout);
-          flowParts.push(p.flow);
-        });
-        ocrUsed=true;
-      }catch(err){
-        console.error(err);
-        toast("OCR unavailable ("+(err.message||err)+") — this PDF may be scanned or image-only");
+      for(let p=1;p<=n;p++){
+        setProg(12+(p/n)*70,`Page ${p} of ${n}…`);
+        const page=await doc.getPage(p);
+        const tc=await page.getTextContent();
+        const {flow,layout,lines}=renderPage(tc.items,page.view,repeatingFPs);
+        // extraction runs on line-structured text so \n-anchored field regexes
+        // (e.g. the YTD-gross header/value pair) still see row boundaries;
+        // pages are newline-joined so one page's last line never runs into the next's first
+        plainText+=(p>1?"\n":"")+lines;
+        layoutParts.push(layout);
+        flowParts.push(flow);
+      }
+      if(plainText.trim().length<100){
+        setProg(86,`No text layer found — running OCR on ${n} page${n>1?'s':''}…`);
+        try{
+          takeOcr(await runOcr(n,p=>rasterisePdfPage(doc,p),(pct,label)=>setProg(86+(pct/100)*8,label)));
+        }catch(err){
+          console.error(err);
+          toast("OCR unavailable ("+(err.message||err)+") — this PDF may be scanned or image-only");
+        }
       }
     }
     setProg(94,"Detecting document type…");
     const type=state.type==="auto"?detectType(plainText):state.type;
     setProg(96,"Extracting fields…");
     const fields=extractFields(type,plainText);
-    const title=titleFor(type,fields,state.file.name);
+    const title=titleFor(type,fields,file.name);
     const sep="\n\n"+"-".repeat(3)+"\n\n";
     // layout mode only helps column-structured docs read from a native text
-    // layer; scanned/general and OCR output read far better as flowing paragraphs
-    const structured=type==="utility"||type==="payslip"||type==="rates";
-    const useLayout=state.layout&&structured&&!ocrUsed;
+    // layer; OCR output reads far better as flowing paragraphs
+    const useLayout=state.layout&&type!=="document"&&!ocrUsed;
     state.result={
-      type,pages:n,ocrUsed,
+      type,pages:n,ocrUsed,ocrConfidence,
       body:(useLayout?layoutParts:flowParts).join(sep),
       flowBody:flowParts.join(sep),
       plainText,title,
-      baseName:state.file.name.replace(/\.pdf$/i,"")
+      fileName:file.name,
+      baseName:file.name.replace(/\.[a-z0-9]+$/i,"")
     };
     state.fields=fields;state.tab="raw";
     setProg(100,"Done");
@@ -488,7 +508,7 @@ function renderPage(items,pageView,repeatingFPs){
       const x=it.transform[4],y=it.transform[5];
       const width=it.width||it.str.length*(size*0.55);
       const isBold=(it.fontName||"").toLowerCase().includes("bold");
-      return{str:normText(it.str),x,y,size,width,isBold};
+      return{str:normText(it.str),x,y,size,width,isBold,ocr:it.fontName==="OCR_Font"};
     });
 
   // group into rows by y coordinate
@@ -525,7 +545,8 @@ function renderPage(items,pageView,repeatingFPs){
     // heading level and prefix
     const avgSize=r.items.reduce((s,i)=>s+i.size,0)/r.items.length;
     const isBold=r.items.some(i=>i.isBold);
-    const lvl=headingLevel(avgSize,{median,p85,p95},isBold);
+    // OCR box heights are too noisy to rank font sizes, so no headings there
+    const lvl=r.items[0].ocr?0:headingLevel(avgSize,{median,p85,p95},isBold);
     const prefix=lvl===2?"## ":lvl===1?"### ":"";
 
     // flow: reconstruct paragraphs by merging wrapped lines
@@ -585,7 +606,7 @@ function renderPage(items,pageView,repeatingFPs){
   };
 }
 
-/* ---------- OCR fallback (scanned / image-only PDFs) ---------- */
+/* ---------- OCR (scanned PDFs and photos) ---------- */
 function loadTesseract(){
   return new Promise((resolve,reject)=>{
     if(window.Tesseract)return resolve();
@@ -599,33 +620,110 @@ function loadTesseract(){
   });
 }
 
-async function runOcr(doc,n,onProgress){
+/* rasterise one PDF page for OCR at 2x (about 144 DPI) */
+async function rasterisePdfPage(doc,p){
+  const page = await doc.getPage(p);
+  const viewport = page.getViewport({ scale: 2.0 });
+  const canvas = document.createElement("canvas");
+  canvas.width = viewport.width; canvas.height = viewport.height;
+  const ctx = canvas.getContext("2d");
+
+  // Fill white so pages with a transparent background aren't OCR'd on black.
+  // No manual grayscale/contrast pass here: pdf.js resets ctx.filter during
+  // render, and Tesseract's own binarisation is the better default — the
+  // threshold variant in runOcr is only tried on low-confidence pages.
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  page.cleanup();
+  return { canvas, scale: 2.0 };
+}
+
+/* draw a photo (receipt, bill) onto a canvas for OCR. Phone photos keep their
+   resolution — small receipt text needs it — up to a 16 MP ceiling. scale maps
+   pixels to notional points as if the image were an A4-width (595 pt) page, so
+   renderPage's font-size heuristics see ordinary point sizes. */
+const MAX_OCR_PIXELS = 16e6;
+async function rasteriseImage(file){
+  let bmp;
+  try { bmp = await createImageBitmap(file); }
+  catch (e) { throw new Error("couldn't read this image" + (/heic|heif/i.test(file.type + file.name) ? " — HEIC photos only open in Safari; export it as JPG" : "")); }
+  const f = Math.min(1, Math.sqrt(MAX_OCR_PIXELS / (bmp.width * bmp.height)));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bmp.width * f); canvas.height = Math.round(bmp.height * f);
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+  bmp.close();
+  return { canvas, scale: canvas.width / 595 };
+}
+
+/* local-mean (adaptive) threshold, upscaled 1.5x when the source is small.
+   Faded thermal receipts and uneven phone lighting defeat a global threshold;
+   comparing each pixel to its 31 px neighbourhood mean copes with both.
+   Returns { canvas, f } where f is the upscale factor, or null on failure. */
+function thresholdVariant(src){
+  try {
+    let f = src.width < 2500 ? 1.5 : 1;
+    f = Math.min(f, Math.sqrt(MAX_OCR_PIXELS / (src.width * src.height)));
+    const w = Math.round(src.width * f), h = Math.round(src.height * f);
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const ctx = c.getContext("2d");
+    ctx.drawImage(src, 0, 0, w, h);
+    const img = ctx.getImageData(0, 0, w, h), px = img.data;
+    const grey = new Float32Array(w * h);
+    for (let i = 0, j = 0; i < px.length; i += 4, j++) grey[j] = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+    const W = w + 1, integral = new Float64Array(W * (h + 1));
+    for (let y = 0; y < h; y++) {
+      let row = 0;
+      for (let x = 0; x < w; x++) { row += grey[y * w + x]; integral[(y + 1) * W + x + 1] = integral[y * W + x + 1] + row; }
+    }
+    const R = 15, OFF = 14;
+    for (let y = 0; y < h; y++) {
+      const y0 = Math.max(0, y - R), y1 = Math.min(h - 1, y + R);
+      for (let x = 0; x < w; x++) {
+        const x0 = Math.max(0, x - R), x1 = Math.min(w - 1, x + R);
+        const sum = integral[(y1 + 1) * W + x1 + 1] - integral[y0 * W + x1 + 1] - integral[(y1 + 1) * W + x0] + integral[y0 * W + x0];
+        const v = grey[y * w + x] < sum / ((y1 - y0 + 1) * (x1 - x0 + 1)) - OFF ? 0 : 255;
+        const i = (y * w + x) * 4;
+        px[i] = px[i + 1] = px[i + 2] = v;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return { canvas: c, f };
+  } catch (e) { return null; }
+}
+
+/* words from a Tesseract result (v6+ only fills them via the blocks tree) */
+function ocrWordsOf(data){
+  if (data.words && data.words.length) return data.words;
+  const out = [];
+  for (const b of data.blocks || []) for (const p of b.paragraphs || []) for (const l of p.lines || []) out.push(...(l.words || []));
+  return out;
+}
+const meanConfidence = ws => ws.length ? ws.reduce((a, w) => a + (w.confidence || 0), 0) / ws.length : 0;
+/* how much a read actually recovered: confidence summed over credible words.
+   Mean confidence alone can't compare reads — Tesseract may silently skip a
+   faint region and score the rest highly — so a read that recovers more words
+   at similar confidence wins. */
+const readScore = ws => ws.reduce((a, w) => a + ((w.confidence || 0) >= 50 ? w.confidence : 0), 0);
+
+/* OCR n pages; getPage(i) resolves to { canvas, scale } for 1-based page i,
+   where scale is canvas pixels per notional point. alwaysRetry tries the
+   threshold variant on every page, not just low-confidence ones — used for
+   photos, where a faint region can be dropped without lowering confidence. */
+async function runOcr(n,getPage,onProgress,{alwaysRetry=false}={}){
   await loadTesseract();
   
   const lang = "eng";
-  
-  // Rasterise one page at a time, just before it is recognised, and free the
-  // canvas afterwards: a 2x canvas is ~8 MB per page, so pre-rendering every
-  // page of a long scan could exhaust browser memory.
-  async function rasterise(p){
-    const page = await doc.getPage(p);
-    const viewport = page.getViewport({ scale: 2.0 }); // Scale 2.0 for higher OCR accuracy
-    const canvas = document.createElement("canvas");
-    canvas.width = viewport.width; canvas.height = viewport.height;
-    const ctx = canvas.getContext("2d");
+  // a page whose mean word confidence is below this gets one retry on an
+  // adaptive-threshold variant; the read that recovers more is kept
+  const RETRY_BELOW = 80;
 
-    // Fill white so pages with a transparent background aren't OCR'd on black.
-    // No manual grayscale/contrast pass: pdf.js resets ctx.filter during render
-    // (setting it here was a verified no-op), and Tesseract's Leptonica engine
-    // already runs its own adaptive binarisation, which handles thresholding better.
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    page.cleanup();
-    return { pageNum: p, canvas, view: page.view };
-  }
-
-  // Sequential OCR processing
+  // Sequential OCR processing; one page is rasterised at a time and its canvas
+  // freed afterwards, since a long scan pre-rendered at once could exhaust memory
   const RESTART_THRESHOLD = 8;
   const results = [];
   
@@ -643,44 +741,39 @@ async function runOcr(doc,n,onProgress){
     pagesProcessed = 0;
     return worker;
   }
+
+  const recognise = async (w, canvas) => {
+    const { data } = await w.recognize(canvas, { user_defined_dpi: '300', tessedit_pageseg_mode: '3' }, { blocks: true });
+    const words = ocrWordsOf(data).filter(x => x.bbox && x.text && x.text.trim());
+    return { data, words, conf: meanConfidence(words), f: 1 };
+  };
   
   try {
     for (let idx = 0; idx < n; idx++) {
       const pageNum = idx + 1;
       onProgress((idx / n) * 100, `OCR: page ${pageNum} of ${n}…`);
-      const pc = await rasterise(pageNum);
+      const pc = await getPage(pageNum);
       
       const activeWorker = await getWorker();
       pagesProcessed++;
       
       try {
-        const { data } = await activeWorker.recognize(pc.canvas, {
-          user_defined_dpi: '300',
-          tessedit_pageseg_mode: '3'
-        }, { blocks: true });
-
-        // Extract words from blocks hierarchy (required in Tesseract.js v6+)
-        let wordsList = [];
-        if (data.words && data.words.length > 0) {
-          wordsList = data.words;
-        } else if (data.blocks) {
-          for (const block of data.blocks) {
-            if (block.paragraphs) {
-              for (const para of block.paragraphs) {
-                if (para.lines) {
-                  for (const line of para.lines) {
-                    if (line.words) {
-                      wordsList.push(...line.words);
-                    }
-                  }
-                }
-              }
-            }
+        let best = await recognise(activeWorker, pc.canvas);
+        if (alwaysRetry || best.conf < RETRY_BELOW) {
+          onProgress(((idx + 0.5) / n) * 100, `OCR: page ${pageNum} — trying a sharpened copy…`);
+          const v = thresholdVariant(pc.canvas);
+          if (v) {
+            try {
+              const alt = await recognise(activeWorker, v.canvas);
+              if (readScore(alt.words) > readScore(best.words)) best = { ...alt, f: v.f };
+            } finally { v.canvas.width = v.canvas.height = 0; }
           }
         }
-        
+
+        // map Tesseract pixel boxes back to notional points
+        const k = pc.scale * best.f;
         const pageItems = [];
-        const ocrWords = wordsList.filter(w => w.bbox && w.text && w.text.trim());
+        const ocrWords = best.words;
 
         if (ocrWords.length > 0) {
           // Sort words top-to-bottom, left-to-right
@@ -696,42 +789,39 @@ async function runOcr(doc,n,onProgress){
               band.words.push(w);
               band.midSum += mid;
               band.hSum += h;
-              band.hMax = Math.max(band.hMax, h);
             } else {
-              ocrBands.push({ words: [w], midSum: mid, hSum: h, hMax: h });
+              ocrBands.push({ words: [w], midSum: mid, hSum: h });
             }
           }
           
-          const pageH_canvas = pc.canvas.height;
+          const pageH_px = pc.canvas.height * best.f;
           for (const band of ocrBands) {
-            const bandY = (pageH_canvas - band.midSum / band.words.length) / 2.0;
-            const bandH = (band.hSum / band.words.length) / 2.0;
+            const bandY = (pageH_px - band.midSum / band.words.length) / k;
+            const bandH = (band.hSum / band.words.length) / k;
             for (const w of band.words) {
+              const width = (w.bbox.x1 - w.bbox.x0) / k;
               pageItems.push({
                 str: normText(w.text),
-                width: (w.bbox.x1 - w.bbox.x0) / 2.0,
+                width,
                 height: bandH,
-                transform: [
-                  (w.bbox.x1 - w.bbox.x0) / 2.0,
-                  0,
-                  0,
-                  bandH,
-                  w.bbox.x0 / 2.0,
-                  bandY
-                ],
+                transform: [width, 0, 0, bandH, w.bbox.x0 / k, bandY],
                 fontName: 'OCR_Font'
               });
             }
           }
         }
         
-        const { flow, layout } = renderPage(pageItems, pc.view, new Set());
+        const view = [0, 0, pc.canvas.width / pc.scale, pc.canvas.height / pc.scale];
+        const { flow, layout, lines } = renderPage(pageItems, view, new Set());
 
         results.push({
           pageNum,
           flow,
           layout,
-          plainText: normText(data.text || "")
+          // line-structured text, like the native-text path, so \n-anchored
+          // field regexes behave the same on OCR output
+          plainText: lines,
+          confidence: best.conf
         });
       } catch (err) {
         console.error(`OCR failed for page ${pageNum}`, err);
@@ -739,7 +829,8 @@ async function runOcr(doc,n,onProgress){
           pageNum,
           flow: `[OCR Failed on Page ${pageNum}]`,
           layout: `[OCR Failed on Page ${pageNum}]`,
-          plainText: ""
+          plainText: "",
+          confidence: 0
         });
       } finally {
         pc.canvas.width = pc.canvas.height = 0;
@@ -753,7 +844,8 @@ async function runOcr(doc,n,onProgress){
   
   return {
     pages: results,
-    plainText: results.map(r => r.plainText).join(" ")
+    plainText: results.map(r => r.plainText).join("\n"),
+    confidence: meanConfidence(results)
   };
 }
 
@@ -762,10 +854,12 @@ function detectType(t){
   const s=t.toLowerCase();
   // leading boundary only, so plurals ("instalments", "employees") still count
   const has=k=>new RegExp("(?<![a-z])"+k).test(s);
-  const score={utility:0,payslip:0,rates:0};
+  const score={utility:0,payslip:0,rates:0,receipt:0};
   [["kwh",3],["kilowatt",2],["electricity",3],["gas usage",2],["megajoule",2],["mj",1],["water usage",2],["kilolitre",2],["meter read",3],["average daily",2],["supply charge",3],["nmi",2],["energy",1]].forEach(([k,w])=>{if(has(k))score.utility+=w;});
   [["net pay",3],["gross pay",3],["gross earnings",2],["superannuation",3],["payg",3],["ytd",2],["year to date",2],["ordinary hours",2],["pay period",2],["employee",1],["tax withheld",3],["leave balance",2]].forEach(([k,w])=>{if(has(k))score.payslip+=w;});
   [["rates notice",4],["council",2],["capital improved value",4],["assessment number",3],["valuation",2],["municipal",2],["waste charge",2],["fire services",2],["rateable",3],["instalment",1],["shire",2]].forEach(([k,w])=>{if(has(k))score.rates+=w;});
+  // "tax invoice" and "gst" also appear on most AU bills, so they only nudge
+  [["receipt",3],["eftpos",3],["subtotal",2],["sub total",2],["sub-total",2],["qty",2],["approved",2],["change due",2],["cash",1],["card",1],["merchant",1],["purchase",1],["gst",1],["tax invoice",1],["thank you",1]].forEach(([k,w])=>{if(has(k))score.receipt+=w;});
   const best=Object.entries(score).sort((a,b)=>b[1]-a[1])[0];
   return best[1]>=3?best[0]:"document";
 }
@@ -902,6 +996,53 @@ function refNear(text,labels){
   return "";
 }
 
+/* receipt amounts: the "$" is often absent ("TOTAL 23.50") or lost by OCR, so
+   it's optional here — but cents are required, so quantities and item codes
+   never pass for money */
+const CENTS_RE="([0-9]{1,3}(?:,[0-9]{3})*\\.[0-9]{2}|[0-9]+\\.[0-9]{2})";
+function amountsNear(text,labels){
+  const out=[];
+  for(const lab of labels)
+    for(const m of text.matchAll(new RegExp(word(lab)+"[^0-9\\n]{0,25}\\$?\\s?"+CENTS_RE,"ig")))
+      out.push(parseFloat(m[1].replace(/,/g,"")));
+  return out;
+}
+const money2=v=>v.toFixed(2);
+/* the total is the largest "total"-labelled figure: "Total savings" and
+   "Total GST" are smaller, and "Subtotal" never matches the whole word */
+function receiptTotal(t){
+  const all=amountsNear(t,["total","grand total","total paid","amount paid","amount due","balance due"]);
+  return all.length?money2(Math.max(...all)):"";
+}
+/* first GST figure that is less than the total — "Total incl GST 22.00" sits
+   right next to the word GST and must not be taken for the tax itself */
+function receiptGst(t,total){
+  const cap=total?parseFloat(total):Infinity;
+  const gst=amountsNear(t,["gst included","includes gst","incl gst","total gst","gst amount","gst"]).find(v=>v<cap);
+  return gst===undefined?"":money2(gst);
+}
+function guessAbn(t){
+  const m=t.match(/(?<![a-z])a\.?b\.?n\.?\s*:?\s*([0-9]{2})\s?([0-9]{3})\s?([0-9]{3})\s?([0-9]{3})(?![0-9])/i);
+  return m?m.slice(1,5).join(" "):"";
+}
+/* merchant: the name printed before the ABN, else the first line that looks
+   like a name (receipts lead with the store) */
+function guessMerchant(t){
+  const m=t.match(/([A-Z][A-Za-z0-9&'. ]{2,50}?)[,\s-]*(?:Pty\.? Ltd\.?)?[,\s]*A\.?B\.?N/);
+  if(m&&!/^(?:tax invoice|receipt)$/i.test(m[1].trim()))return m[1].trim();
+  for(const raw of t.split("\n").slice(0,8)){
+    const line=raw.replace(/^#+\s*/,"").trim();
+    if(/^(?:tax invoice|receipt|invoice|welcome|thank you)/i.test(line))continue;
+    if((line.match(/[A-Za-z]/g)||[]).length>=3&&line.length<=50&&!/[0-9]{3,}/.test(line))return line.replace(/[\s.,:;-]+$/,"");
+  }
+  return "";
+}
+function guessPayment(t){
+  const methods=[["apple pay","Apple Pay"],["google pay","Google Pay"],["amex","Amex"],["american express","Amex"],["mastercard","Mastercard"],["visa","Visa"],["eftpos","EFTPOS"],["debit","Debit card"],["credit","Credit card"],["cash","Cash"]];
+  for(const [k,v] of methods)if(new RegExp(word(k),"i").test(t))return v;
+  return "";
+}
+
 function extractFields(type,t){
   const f=[];const add=(k,v)=>f.push({key:k,val:v||""});
   if(type==="utility"){
@@ -936,9 +1077,16 @@ function extractFields(type,t){
     add("rateable_value",moneyNearOrNextLine(t,["rateable value","net annual value","nav"]));
     add("amount_due",moneyNear(t,["total amount","total rates","amount due","total due","total payable"]));
     add("due_date",dateNear(t,["due date","pay by","first instalment","payment due"]));
-  } else if(type==="scanned"){
-    add("type","scanned_document");
-    add("date",dateNear(t,["date","dated"])||"");
+  } else if(type==="receipt"){
+    add("type","receipt");
+    add("merchant",guessMerchant(t));
+    add("abn",guessAbn(t));
+    const firstDate=t.match(new RegExp(DATE_RE));
+    add("date",dateNear(t,["date","dated","date/time"])||(firstDate?tidyDate(firstDate[0]):""));
+    const total=receiptTotal(t);
+    add("total",total);
+    add("gst",receiptGst(t,total));
+    add("payment",guessPayment(t));
   } else {
     add("type","document");
     add("date",dateNear(t,["date","dated"])||"");
@@ -983,8 +1131,8 @@ function titleFor(type,fields,fname){
   if(type==="utility")return `${get("provider")||"Utility"} bill — ${get("period")||get("due_date")||""}`.trim().replace(/—\s*$/,"").trim();
   if(type==="payslip")return `Payslip — ${get("pay_period")||get("pay_date")||""}`.trim().replace(/—\s*$/,"").trim();
   if(type==="rates")return `${get("council")||"Council"} rates — ${get("period")||""}`.trim().replace(/—\s*$/,"").trim();
-  if(type==="scanned")return fname.replace(/\.pdf$/i,"");
-  return fname.replace(/\.pdf$/i,"");
+  if(type==="receipt")return `${get("merchant")||"Receipt"} — ${get("date")||""}`.trim().replace(/—\s*$/,"").trim();
+  return fname.replace(/\.[a-z0-9]+$/i,"");
 }
 
 /* compact single-line summary — placed at top of the JSON note content so
@@ -1013,8 +1161,12 @@ function summaryLine(type,fields){
     if(get("period"))     parts.push("Period: "+get("period"));
     if(get("amount_due")) parts.push("Amount: $"+get("amount_due"));
     if(get("due_date"))   parts.push("Due: "+get("due_date"));
-  } else if(type==="scanned"){
+  } else if(type==="receipt"){
+    if(get("merchant"))   parts.push("Merchant: "+get("merchant"));
     if(get("date"))       parts.push("Date: "+get("date"));
+    if(get("total"))      parts.push("Total: $"+get("total"));
+    if(get("gst"))        parts.push("GST: $"+get("gst"));
+    if(get("payment"))    parts.push("Paid: "+get("payment"));
   } else {
     if(get("date"))       parts.push("Date: "+get("date"));
     if(get("amount"))     parts.push("Amount: $"+get("amount"));
@@ -1033,6 +1185,10 @@ function tagsFor(type,fields){
     tags.push("income");
   } else if(type==="rates"){
     tags.push("council","rates");
+  } else if(type==="receipt"){
+    tags.push("expense");
+    const m=get("merchant");
+    if(m)tags.push(m.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9\-]/g,""));
   }
   return tags.filter(Boolean);
 }
@@ -1040,14 +1196,16 @@ function tagsFor(type,fields){
 /* ---------- results UI ---------- */
 function showResults(){
   const r=state.result;
-  const labels={utility:"utility bill",payslip:"payslip",rates:"rates notice",scanned:"scanned / general",document:"unrecognised — generic"};
+  const labels={utility:"utility bill",payslip:"payslip",rates:"rates notice",receipt:"receipt",document:"unrecognised — generic"};
   $("#typeBadge").textContent=labels[r.type]||r.type;
   $("#pageBadge").textContent=r.pages+" page"+(r.pages>1?"s":"");
+  $("#ocrBadge").textContent=r.ocrUsed?`OCR'd · ${Math.round(r.ocrConfidence)}% confidence`:"OCR'd";
   $("#ocrBadge").classList.toggle("hidden",!r.ocrUsed);
-  $("#fmNote").textContent = r.ocrUsed
-    ? "No text layer was found, so this was read with OCR — accuracy is lower than a native PDF text layer. Check every field carefully before trusting it."
-    : r.type==="document"
-      ? "Couldn't confidently identify the document type — extracted what it could. Set the type manually above and re-run for better fields."
+  // static strings only: innerHTML is used for the pdftext link
+  $("#fmNote").innerHTML = r.type==="document"
+    ? 'Not recognised as a bill, payslip, rates notice or receipt — extracted what it could. Set the type above and re-run, or for general PDFs use <a href="https://github.com/firehorse67/pdftext" target="_blank" rel="noopener">pdftext</a>.'
+    : r.ocrUsed
+      ? "Read with OCR, so accuracy is lower than a native PDF text layer. Check every field carefully before trusting it."
       : "Auto-filled from the document. Click any value to edit; flagged fields were left blank.";
   renderFields();renderViewer();
   $("#results").classList.add("show");
@@ -1067,7 +1225,7 @@ $("#addField").onclick=()=>{const k=$("#newKey").value.trim().toLowerCase().repl
 function buildFrontMatter(){
   const lines=["---"];
   state.fields.forEach(f=>{ if(f.key) lines.push(`${f.key}: ${yamlVal(f.val)}`); });
-  lines.push(`source_file: ${yamlVal(state.result.baseName+".pdf")}`);
+  lines.push(`source_file: ${yamlVal(state.result.fileName)}`);
   lines.push("---");
   return lines.join("\n");
 }
