@@ -119,6 +119,13 @@
   .frow input{width:100%;font-family:'Inter',system-ui,sans-serif;font-size:14px;padding:7px 10px;border:1px solid var(--outline-v);border-radius:4px;background:transparent;color:var(--on-surface);transition:.13s}
   .frow input:focus{outline:none;border-color:var(--primary);border-width:2px;padding:6px 9px}
   .frow input.empty{border-color:var(--amber);background:#fffbf0}
+  .frow input.weak{border-style:dashed;border-color:var(--amber)}
+  .ftag{font-family:'Inter',system-ui,sans-serif;text-transform:none;letter-spacing:0;font-size:10.5px;color:var(--amber);margin-left:4px}
+  .ftag.learned{color:var(--primary)}
+  .fhint{font-size:11.5px;color:var(--on-surface-v);margin-top:4px}
+  .fhint.warn{color:#b3261e}
+  .learnnote{margin-top:6px;color:var(--primary)}
+  .learnnote button{border:none;background:none;color:var(--primary);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
   .addrow{display:flex;gap:8px;margin-top:8px}
   .addrow input{flex:1}
   .addrow button{border:1px solid var(--outline-v);background:var(--surface-low);border-radius:4px;padding:0 14px;cursor:pointer;font-size:18px;color:var(--on-surface-v)}
@@ -473,13 +480,16 @@ $("#go").onclick=async()=>{
     const type=state.type==="auto"?detectType(plainText):state.type;
     setProg(96,"Extracting fields…");
     const fields=extractFields(type,plainText);
+    const origName=nameOf(fields);
+    const learnedCount=applyLearned(type,plainText,fields);
+    fields.forEach(f=>{f.orig=f.val;});
     const title=titleFor(type,fields,file.name);
     const sep="\n\n"+"-".repeat(3)+"\n\n";
     // layout mode only helps column-structured docs read from a native text
     // layer; OCR output reads far better as flowing paragraphs
     const useLayout=state.layout&&type!=="document"&&!ocrUsed;
     state.result={
-      type,pages:n,ocrUsed,ocrConfidence,
+      type,pages:n,ocrUsed,ocrConfidence,origName,learnedCount,
       body:(useLayout?layoutParts:flowParts).join(sep),
       flowBody:flowParts.join(sep),
       plainText,title,
@@ -1054,17 +1064,17 @@ function guessMerchant(t){
   const lines=t.split("\n").map(l=>l.replace(/^#+\s*/,"").trim()).slice(0,12);
   for(const line of lines){
     const m=line.match(COMPANY_RE);
-    if(m&&!CUSTOMER_LABEL.test(line.slice(0,m.index)))return m[1].trim();
+    if(m&&!CUSTOMER_LABEL.test(line.slice(0,m.index)))return {name:m[1].trim()};
   }
   for(let i=0;i<lines.length;i++){
     const at=lines[i].search(ABN_NUM_RE);
     if(at<0)continue;
     const before=lines[i].slice(0,at).replace(/[\s,-]+$/,"");
-    if(before&&looksLikeName(before)&&!CUSTOMER_LABEL.test(before))return before;
-    if(!before&&i>0&&looksLikeName(lines[i-1]))return lines[i-1].replace(/[\s.,;-]+$/,"");
+    if(before&&looksLikeName(before)&&!CUSTOMER_LABEL.test(before))return {name:before};
+    if(!before&&i>0&&looksLikeName(lines[i-1]))return {name:lines[i-1].replace(/[\s.,;-]+$/,"")};
   }
-  for(const line of lines.slice(0,8))if(looksLikeName(line))return line.replace(/[\s.,;-]+$/,"");
-  return "";
+  for(const line of lines.slice(0,8))if(looksLikeName(line))return {name:line.replace(/[\s.,;-]+$/,""),weak:true};
+  return {name:""};
 }
 /* payment method from what the receipt records, ignoring instruction text
    ("If you have purchased using credit card or Paypal…", "pay from your
@@ -1077,24 +1087,29 @@ function guessPayment(t){
   return "";
 }
 
+/* weak=true marks a value from a last-resort rule (an unlabelled date, the
+   first name-like line…); the UI flags it so you know what to check */
 function extractFields(type,t){
-  const f=[];const add=(k,v)=>f.push({key:k,val:v||""});
+  const f=[];const add=(k,v,weak)=>f.push({key:k,val:v||"",weak:!!(v&&weak)});
+  // first strong candidate, else the weak one, flagged
+  const pick=(k,strong,weakVal)=>strong?add(k,strong):add(k,weakVal,true);
   if(type==="utility"){
     add("type","utility_bill");
     add("provider",guessProvider(t));
     add("account",refNear(t,["customer number","account number","account no","account"]));
     add("meter_id",refNear(t,["nmi","mirn","registration number","metering identifier"])||meterSerial(t));
-    add("period",labelledPeriod(t)||widestFromRange(t)||periodRange(t)||dateNear(t,["bill period","billing period","period"]));
+    pick("period",labelledPeriod(t)||widestFromRange(t),periodRange(t)||dateNear(t,["bill period","billing period","period"]));
     const usage=usageAmount(t);
     add("usage",usage.value);
     add("usage_unit",usage.unit);
     add("avg_daily",avgDaily(t));
-    add("amount_due",moneyNear(t,["total amount due","amount due","total due","please pay","new charges","total"]));
+    pick("amount_due",moneyNear(t,["total amount due","amount due","total due","please pay"]),moneyNear(t,["new charges","total"]));
     add("due_date",dueDate(t));
   } else if(type==="payslip"){
     add("type","payslip");
-    add("employer",guessEmployer(t));
-    add("pay_period",periodRange(t)||dateNear(t,["pay period","period ending","for the period"]));
+    const emp=guessEmployer(t);
+    add("employer",emp.name,emp.weak);
+    pick("pay_period",labelledPeriod(t),periodRange(t)||dateNear(t,["pay period","period ending","for the period"]));
     add("pay_date",dateNear(t,["pay date","date paid","payment date"]));
     add("gross",moneyNear(t,["gross pay","gross earnings","total gross","gross"]));
     add("tax",moneyNear(t,["payg","tax withheld","paye","income tax","tax"]));
@@ -1106,25 +1121,26 @@ function extractFields(type,t){
     add("type","rates_notice");
     add("council",guessCouncil(t));
     add("assessment",refNear(t,["assessment number","assessment no","assessment","property number"]));
-    add("period",guessFinYear(t)||periodRange(t));
+    pick("period",guessFinYear(t),periodRange(t));
     add("capital_improved_value",moneyNearOrNextLine(t,["capital improved value","civ"]));
     add("rateable_value",moneyNearOrNextLine(t,["rateable value","net annual value","nav"]));
     add("amount_due",moneyNear(t,["total amount","total rates","amount due","total due","total payable"]));
     add("due_date",dateNear(t,["due date","pay by","first instalment","payment due"]));
   } else if(type==="receipt"){
     add("type","receipt");
-    add("merchant",guessMerchant(t));
+    const mer=guessMerchant(t);
+    add("merchant",mer.name,mer.weak);
     add("abn",guessAbn(t));
     const firstDate=t.match(new RegExp(DATE_RE));
-    add("date",dateNear(t,["date","dated","date/time"])||(firstDate?tidyDate(firstDate[0]):""));
+    pick("date",dateNear(t,["date","dated","date/time"]),firstDate?tidyDate(firstDate[0]):"");
     const total=receiptTotal(t);
     add("total",total);
     add("gst",receiptGst(t,total));
     add("payment",guessPayment(t));
   } else {
     add("type","document");
-    add("date",dateNear(t,["date","dated"])||"");
-    add("amount",moneyNear(t,["total","amount due","amount"]));
+    add("date",dateNear(t,["date","dated"]),true);
+    add("amount",moneyNear(t,["total","amount due","amount"]),true);
   }
   return f;
 }
@@ -1142,15 +1158,15 @@ function ytdGrossHeader(t){
 function guessEmployer(t){
   // try labelled pattern first
   let m=t.match(/(?:employer|company name|paid by|trading as)\s*[:\-]?\s*([A-Z][A-Za-z0-9&'.\- ]{2,50})/i);
-  if(m)return m[1].trim();
+  if(m)return {name:m[1].trim()};
   // "CompanyName Payslip" header pattern (many payslips omit an explicit label)
   m=t.match(/^([A-Z][A-Za-z0-9&'.\- ]{2,50})\s+(?:payslip|pay slip|pay advice)/im);
-  if(m)return m[1].trim();
+  if(m)return {name:m[1].trim()};
   // name preceding an ABN, e.g. "Central Goldfields Shire Council, ABN : 821…"
   // (not line-anchored: label/value boxes often share a row in the flow text)
   m=t.match(/([A-Z][A-Za-z0-9&' ]{2,60}?),?\s*ABN\s*:?/);
-  if(m)return m[1].trim();
-  return "";
+  if(m)return {name:m[1].trim(),weak:true};
+  return {name:""};
 }
 function guessCouncil(t){
   const m=t.match(/([A-Z][A-Za-z]+(?:\s[A-Z][A-Za-z]+){0,3})\s+(?:City Council|Shire Council|Council|Shire|City of)/);
@@ -1227,6 +1243,146 @@ function tagsFor(type,fields){
   return tags.filter(Boolean);
 }
 
+/* ---------- learned supplier layouts ----------
+   When you correct a field and then export, Ledger finds the value you typed
+   in the document text, notes the words printed before it (and how many
+   figures sit between, for totals rows with several columns), and keeps that
+   rule per supplier in this browser's localStorage. When a document from the
+   same supplier comes in, the learned rules are tried first. Nothing leaves
+   the browser; "Forget" in the field panel clears a supplier. */
+const LEARN_KEY="ledger.learned.v1";
+const NAME_FIELDS=new Set(["merchant","provider","employer","council"]);
+const loadLearned=()=>{try{return JSON.parse(localStorage.getItem(LEARN_KEY))||{};}catch(e){return {};}};
+const saveLearned=o=>{try{localStorage.setItem(LEARN_KEY,JSON.stringify(o));return true;}catch(e){return false;}};
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+const nameOf=fields=>(fields.find(f=>NAME_FIELDS.has(f.key))||{}).val||"";
+/* a document is filed under the supplier's ABN when one is printed (stable
+   even when the name is misread) and under the supplier name */
+function supplierKeys(type,text,name){
+  const keys=[];
+  const abn=text&&guessAbn(text);
+  if(abn)keys.push("abn:"+abn.replace(/\s/g,""));
+  if(name)keys.push("name:"+type+":"+name.toLowerCase().trim());
+  return keys;
+}
+// ref: order/invoice/reference codes such as "SO003134348" (letters + digits)
+const KIND_RE={money:CENTS_RE,date:"("+DATE_RE+")",number:"([0-9][0-9.,\\-\\/]*[0-9]|[0-9])",ref:"(?<![A-Za-z0-9])([A-Za-z]*[0-9][A-Za-z0-9\\-\\/]{2,})(?![A-Za-z0-9])"};
+function kindOf(v){
+  if(/^-?(?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)\.[0-9]{2}$/.test(v))return "money";
+  if(new RegExp("^"+DATE_RE+"$").test(v))return "date";
+  if(/^[0-9][0-9 .,\-\/]*$/.test(v))return "number";
+  if(/^[A-Za-z]*[0-9][A-Za-z0-9\-\/]{2,}$/.test(v))return "ref";
+  return "";
+}
+/* where a typed value sits in the text: up to 3 words just before it, and how
+   many same-kind figures lie between those words and the value. Prefers the
+   occurrence nearest its label. */
+function labelFor(text,v,kind){
+  const plain=kind==="money"?v.replace(/,/g,""):v;
+  const forms=new Set([plain]);
+  if(kind==="money")forms.add(Number(plain).toLocaleString("en-AU",{minimumFractionDigits:2,maximumFractionDigits:2}));
+  let best=null;
+  for(const line of text.split("\n")){
+    for(const form of forms){
+      for(const m of line.matchAll(new RegExp("(?<![0-9.,])"+reEsc(form)+"(?![0-9])","g"))){
+        const before=line.slice(0,m.index);
+        const toks=before.split(/\s+/).filter(x=>/[A-Za-z0-9]/.test(x));
+        let i=toks.length-1,figs=0;
+        while(i>=0&&!/[A-Za-z]/.test(toks[i])&&figs<6){i--;figs++;}
+        const words=[];
+        // a word ending in ":" closes an earlier label ("ABN: Order no:"), so stop there
+        while(i>=0&&words.length<3&&/^[A-Za-z]/.test(toks[i])&&!(words.length&&/:$/.test(toks[i]))){words.unshift(toks[i]);i--;}
+        const label=words.join(" ").replace(/[^A-Za-z)]+$/,"");
+        if(label.length<2)continue;
+        const lastWord=words[words.length-1];
+        const between=before.slice(before.lastIndexOf(lastWord)+lastWord.length);
+        const skip=[...between.matchAll(new RegExp(KIND_RE[kind],"g"))].length;
+        if(!best||skip<best.skip)best={label,skip};
+      }
+    }
+  }
+  return best;
+}
+function valueByLabel(text,{label,skip,kind}){
+  const lab=label.split(/\s+/).map(reEsc).join("[\\s:]+");
+  for(const m of text.matchAll(new RegExp(word(lab)+"([^\\n]*)","ig"))){
+    const vals=[...m[1].matchAll(new RegExp(KIND_RE[kind],"g"))];
+    if(vals.length>skip){
+      const v=vals[skip][1];
+      return kind==="money"?v.replace(/,/g,""):kind==="date"?tidyDate(v):v.trim();
+    }
+  }
+  return "";
+}
+/* fill fields from this supplier's learned rules; returns how many applied */
+function applyLearned(type,text,fields){
+  const store=loadLearned();
+  const entry=supplierKeys(type,text,nameOf(fields)).map(k=>store[k]&&store[k][type]).find(Boolean);
+  if(!entry)return 0;
+  let n=0;
+  for(const [key,rule] of Object.entries(entry)){
+    const val=rule.value!==undefined?rule.value:valueByLabel(text,rule);
+    if(!val)continue;
+    let f=fields.find(x=>x.key===key);
+    if(!f){f={key,val:""};fields.push(f);}
+    f.val=val;f.learned=true;f.weak=false;n++;
+  }
+  return n;
+}
+/* learn from fields you changed since extraction; called on export */
+function learnFromEdits(){
+  const r=state.result;if(!r)return 0;
+  const changed=state.fields.filter(f=>f.key!=="type"&&f.val&&f.val!==f.orig);
+  if(!changed.length)return 0;
+  const rules={};
+  for(const f of changed){
+    const v=String(f.val).trim();
+    if(NAME_FIELDS.has(f.key)){rules[f.key]={value:v};continue;}
+    const kind=kindOf(v);if(!kind)continue;
+    const found=labelFor(r.plainText,v,kind);
+    if(found)rules[f.key]={label:found.label,skip:found.skip,kind};
+  }
+  if(!Object.keys(rules).length)return 0;
+  // file under the ABN, the corrected name and the name as first extracted
+  // (a misread name will be misread the same way next time)
+  const keys=new Set([...supplierKeys(r.type,r.plainText,nameOf(state.fields)),...supplierKeys(r.type,"",r.origName)]);
+  if(!keys.size)return 0;
+  const store=loadLearned();
+  for(const k of keys){store[k]=store[k]||{};store[k][r.type]={...(store[k][r.type]||{}),...rules};}
+  if(!saveLearned(store))return 0;
+  state.fields.forEach(f=>{f.orig=f.val;});
+  return Object.keys(rules).length;
+}
+function forgetSupplier(){
+  const r=state.result;if(!r)return;
+  const store=loadLearned();
+  for(const k of [...supplierKeys(r.type,r.plainText,nameOf(state.fields)),...supplierKeys(r.type,"",r.origName)])
+    if(store[k])delete store[k][r.type];
+  saveLearned(store);
+  toast("Forgotten — re-run extraction for a fresh read");
+}
+const learnToast=()=>{const n=learnFromEdits();if(n)toast(`Learned ${n} field${n>1?"s":""} for ${nameOf(state.fields)||"this supplier"} — used next time`);return n;};
+
+/* GST sanity check for receipts: GST on a fully taxable purchase is 1/11 of
+   the GST-inclusive total. A hint, never an auto-fill. */
+function gstHint(){
+  if(!state.result||state.result.type!=="receipt")return null;
+  const get=k=>(state.fields.find(f=>f.key===k)||{}).val||"";
+  const total=parseFloat(get("total")),gst=parseFloat(get("gst"));
+  if(!(total>0))return null;
+  const full=Math.round(total/11*100)/100,dollars="$"+full.toFixed(2);
+  if(isNaN(gst))return {msg:`If fully taxable, GST would be ${dollars} (1/11 of the total).`};
+  if(gst===0)return {msg:"No GST — GST-free items, or an export."};
+  if(gst>full+0.02)return {msg:`More than 1/11 of the total (${dollars}) — check this figure.`,warn:true};
+  if(gst<full-0.02)return {msg:`Less than 1/11 of the total (${dollars}) — some items may be GST-free.`};
+  return {msg:"Matches 1/11 of the total."};
+}
+function updateHints(){
+  const el=$("#fmFields .fhint");if(!el)return;
+  const h=gstHint();
+  el.textContent=h?h.msg:"";el.classList.toggle("warn",!!(h&&h.warn));
+}
+
 /* ---------- results UI ---------- */
 function showResults(){
   const r=state.result;
@@ -1240,7 +1396,13 @@ function showResults(){
     ? 'Not recognised as a bill, payslip, rates notice or receipt — extracted what it could. Set the type above and re-run, or for general PDFs use <a href="https://github.com/firehorse67/pdftext" target="_blank" rel="noopener">pdftext</a>.'
     : r.ocrUsed
       ? "Read with OCR, so accuracy is lower than a native PDF text layer. Check every field carefully before trusting it."
-      : "Auto-filled from the document. Click any value to edit; flagged fields were left blank.";
+      : "Auto-filled from the document. Click any value to edit. Blank fields are highlighted; dashed ones are best guesses to check.";
+  if(r.learnedCount){
+    const p=document.createElement("div");p.className="learnnote";
+    p.textContent=`Used ${r.learnedCount} learned field${r.learnedCount>1?"s":""} for this supplier. `;
+    const b=document.createElement("button");b.textContent="Forget";b.onclick=()=>{forgetSupplier();p.remove();};
+    p.appendChild(b);$("#fmNote").appendChild(p);
+  }
   renderFields();renderViewer();
   $("#results").classList.add("show");
 }
@@ -1248,11 +1410,18 @@ function renderFields(){
   const c=$("#fmFields");c.innerHTML="";
   state.fields.forEach((f,i)=>{
     const row=document.createElement("div");row.className="frow";
-    row.innerHTML=`<label>${escapeHtml(f.key)}</label><input value="${escapeHtml(f.val||"")}" data-i="${i}"${f.val?"":' class="empty"'}>`;
+    const tag=f.learned?' <span class="ftag learned">learned</span>':f.weak?' <span class="ftag">best guess</span>':"";
+    const cls=!f.val?"empty":f.weak?"weak":"";
+    row.innerHTML=`<label>${escapeHtml(f.key)}${tag}</label><input value="${escapeHtml(f.val||"")}" data-i="${i}"${cls?` class="${cls}"`:""}>`+(f.key==="gst"?'<div class="fhint"></div>':"");
     const inp=row.querySelector("input");
-    inp.oninput=e=>{state.fields[i].val=e.target.value;e.target.classList.toggle("empty",!e.target.value);renderViewer();};
+    inp.oninput=e=>{
+      const fl=state.fields[i];fl.val=e.target.value;fl.weak=false;
+      e.target.classList.remove("weak");row.querySelector(".ftag:not(.learned)")?.remove();
+      e.target.classList.toggle("empty",!e.target.value);renderViewer();updateHints();
+    };
     c.appendChild(row);
   });
+  updateHints();
 }
 $("#addField").onclick=()=>{const k=$("#newKey").value.trim().toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_]/g,"");if(!k)return;state.fields.push({key:k,val:""});$("#newKey").value="";renderFields();renderViewer();};
 
@@ -1319,14 +1488,16 @@ function renderViewer(){
 }
 $("#tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;state.tab=b.dataset.tab;renderViewer();};
 
-$("#copyMd").onclick=async()=>{try{await navigator.clipboard.writeText(fullMarkdown());toast("Markdown copied");}catch(e){toast("Copy failed");}};
+$("#copyMd").onclick=async()=>{try{await navigator.clipboard.writeText(fullMarkdown());if(!learnToast())toast("Markdown copied");}catch(e){toast("Copy failed");}};
 $("#dlMd").onclick=()=>{
+  learnToast();
   const blob=new Blob([fullMarkdown()],{type:"text/markdown"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   a.download=(state.result.baseName||"document")+".md";a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 };
 $("#dlJson").onclick=()=>{
+  learnToast();
   const blob=new Blob([buildJson()],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   a.download=(state.result.baseName||"document")+".json";a.click();

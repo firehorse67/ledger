@@ -72,6 +72,9 @@ Keep a copy on each machine you use. There is no hosted version — though if yo
 - **Photos and scanned PDFs** — photos, and PDFs with no text layer, are read with Tesseract.js, loaded on demand. A page that reads poorly (mean word confidence under 80%) is retried once on a sharpened, adaptively thresholded copy and the better read is kept, which helps with faded thermal receipts and uneven phone lighting. Results carry an "OCR'd" badge with the confidence score, since accuracy is lower than a native text layer
 - **Password-protected PDFs** — encrypted payslips and statements are unlocked locally; the password is typed into the page, used only by PDF.js in memory, and never stored
 - **Editable front-matter** — review and correct any field before export; add custom fields
+- **Learns each supplier's layout** — when you correct a field (or add one, such as an order number) and export, Ledger notes the label printed beside that value and saves it for that supplier, keyed by ABN and name. The next document from the same supplier fills those fields automatically, marked "learned". Rules live only in this browser's local storage; "Forget" in the field panel clears a supplier
+- **Best-guess flags** — values that came from a last-resort rule (an unlabelled date, the first name-like line) get a dashed outline and a "best guess" tag, so you know what to check first
+- **GST check for receipts** — the GST field shows what 1/11 of the total would be, and flags a GST figure larger than that
 - **JSON export** — summary line placed at the top of note content so AI assistants see all key figures within their context preview window
 - **Installable** — if you host the file over http/https (rather than opening it as a local file), it's an installable PWA with offline support after first load
 
@@ -106,6 +109,7 @@ This tool began as a fork of [LiteDoc](https://github.com/0xovo/LiteDoc) by [0xo
 ## Notes
 
 - Field extraction is heuristic — always review the front-matter before trusting numbers
+- Learned layouts are stored per browser, so each machine (and each browser) learns separately; clearing site data clears them
 - Photos and scanned (image-only) PDFs are read via on-demand OCR, which needs network access on first use and is noticeably slower and less accurate than a native text layer — double-check every field, especially names and figures
 - For difficult historical or handwritten scans, a vision-capable AI model reading a page image will usually out-read the built-in OCR; Ledger's OCR is a convenient local fallback, not a specialist handwriting engine
 - Tuned for Australian documents; results will vary for non-AU formats
